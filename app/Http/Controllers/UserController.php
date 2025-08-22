@@ -167,4 +167,37 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+    public function selectList(Request $request){
+        try{
+            $search = $request->input('search');
+            $users = User::query()
+                ->when($search, function ($query) use ($search) {
+                    return $query->where('name', 'like', "%{$search}%")
+                                 ->orWhere('email', 'like', "%{$search}%");
+                })
+                ->orderByDesc('id')
+                ->get();
+
+            $data = $users->map(function ($user) {
+                return [
+                    'id' => encrypt($user->id),
+                    'name' => $user->name,
+                    'role' => $user->role,
+                ];
+            });
+
+            return response()->json([
+                'result' => true,
+                'data' => $data,
+                'message' => 'Users retrieved successfully.',
+            ]);
+
+        }catch(\Exception $e){
+            return response()->json([
+                'result' => false,
+                'message' => 'An error occurred while retrieving the user: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
