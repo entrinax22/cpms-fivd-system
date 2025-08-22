@@ -70,7 +70,7 @@
                             type="submit" 
                             class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition"
                         >
-                            Create User
+                            Submit
                         </button>
                     </div>
                 </form>

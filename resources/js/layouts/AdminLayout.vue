@@ -125,7 +125,8 @@ const reports = [
 
 // Tables links
 const tables = [
-  { icon: 'table_chart', label: 'Users Table', href: route('admin.users') }
+  { icon: 'table_chart', label: 'Users Table', href: route('admin.users') },
+  { icon: 'table_chart', label: 'Project Managers', href: route('admin.project-managers') }
 ]
 
 const logout = () => {

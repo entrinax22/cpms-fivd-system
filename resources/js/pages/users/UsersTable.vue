@@ -1,5 +1,5 @@
 <template>
-    <Head title="Admin Dashboard" />
+    <Head title="Users Table" />
 
     <AdminLayout>
         <div class="p-6 bg-gray-50 min-h-screen">
@@ -104,7 +104,7 @@
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                         >
                             <option value="admin">Admin</option>
-                            <option value="employee">Employeessssssssssssss</option>
+                            <option value="employee">Employee</option>
                         </select>
                     </div>
 
@@ -200,6 +200,8 @@ function prevPage() {
 
 const paginatedUsers = computed(() => users.value);
 const totalPages = computed(() => pagination.value.last_page);
+//ends here for templating
+
 
 function addUser() {
   router.get(route('admin.users.create'));
