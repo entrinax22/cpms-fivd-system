@@ -117,6 +117,7 @@ import { Head } from "@inertiajs/vue3";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import { ref, onMounted, watch } from "vue";
 import axios from "axios";
+import { toast } from "@/stores/ToastStore";
 
 // // import vue-multiselect
 // import Multiselect from "vue-multiselect";
@@ -128,31 +129,6 @@ const newManager = ref({
     contact_information: "",
     years_of_experience: ""
 });
-
-// const users = ref([]);
-// const selectedUser = ref(null);
-
-// const fetchUsers = async (search = "") => {
-//     try {
-//         const response = await axios.get(route("admin.users.selectList"), {
-//             params: { search }
-//         });
-//         if (response.data.result) {
-//             users.value = response.data.data;
-//         }
-//     } catch (error) {
-//         console.error("Error fetching users:", error);
-//     }
-// };
-
-// keep users_id synced with selected user
-// watch(selectedUser, (val) => {
-//     newManager.value.users_id = val ? val.id : "";
-// });
-
-// onMounted(() => {
-//     fetchUsers();
-// });
 
 const submitAddManager = async () => {
     const route_url = route('admin.project-managers.store');
@@ -167,8 +143,9 @@ const submitAddManager = async () => {
                 contact_information: "",
                 years_of_experience: ""
             };
+            toast.show('Project Manager added successfully!', 'success');
         } else {
-            console.error(response.data.message);
+            toast.show('Project Manager adding error!', 'error');
         }
     } catch (error) {
         console.log(error);

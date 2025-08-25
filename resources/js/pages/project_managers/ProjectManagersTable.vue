@@ -57,8 +57,8 @@
                     :per-page="pagination.per_page"
                 >
                     <template #actions="{ row }">
-                        <button @click="editManager(row.id)"  class="px-2 py-1 text-xs font-semibold bg-yellow-500 text-white rounded shadow hover:bg-yellow-600 transition">Edit</button>
-                        <button @click="deleteManager(row.id)"  class="px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded shadow hover:bg-red-600 transition">Delete</button>
+                        <button @click="editManager(row.manager_id)"  class="px-2 py-1 text-xs font-semibold bg-yellow-500 text-white rounded shadow hover:bg-yellow-600 transition">Edit</button>
+                        <button @click="deleteManager(row.manager_id)"  class="px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded shadow hover:bg-red-600 transition">Delete</button>
                     </template>
                 </BaseTable>
             </div>
@@ -228,8 +228,8 @@ function handleCloseEditModal() {
     editManagerData.value = null;
 }
 
-async function editManager(id) {
-    const route_url = route('admin.project-managers.edit', { id });
+async function editManager(manager_id) {
+    const route_url = route('admin.project-managers.edit', { manager_id });
     try {
         const response = await axios.get(route_url);
         if (response.data.result === true) {
@@ -242,8 +242,8 @@ async function editManager(id) {
     }
 }
 
-async function updateManager(id) {
-    const route_url = route('admin.project-managers.update', { id });
+async function updateManager(manager_id) {
+    const route_url = route('admin.project-managers.update', { manager_id });
     try {
         const response = await axios.post(route_url, editManagerData.value);
         if (response.data.result === true) {

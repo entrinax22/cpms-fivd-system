@@ -26,7 +26,7 @@ class ProjectManagerController extends Controller
 
             $data = $managers->getCollection()->map(function ($manager) {
                 return [
-                    'id' => encrypt($manager->manager_id),
+                    'manager_id' => encrypt($manager->manager_id),
                     'manager_name' => $manager->manager_name,
                     'expertise_area' => $manager->expertise_area,
                     'contact_information' => $manager->contact_information,
@@ -108,7 +108,7 @@ class ProjectManagerController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $manager_id)
     {
         $request->validate([
             'manager_name' => 'required|string|max:255',
@@ -118,7 +118,7 @@ class ProjectManagerController extends Controller
         ]);
 
         try {
-            $managerId = decrypt($id);
+            $managerId = decrypt($manager_id);
             $manager = ProjectManager::findOrFail($managerId);
 
             $manager->manager_name = $request->input('manager_name');
@@ -139,10 +139,10 @@ class ProjectManagerController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy($manager_id)
     {
         try {
-            $managerId = decrypt($id);
+            $managerId = decrypt($manager_id);
             $manager = ProjectManager::findOrFail($managerId);
             $manager->delete();
 
@@ -155,6 +155,39 @@ class ProjectManagerController extends Controller
                 'result' => false,
                 'message' => 'An error occurred while deleting the project manager: ' . $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function selectList(Request $request){
+        try{
+            $search = $request->search;
+            $query = ProjectManager::query()
+                ->when($search, function ($q) use ($search) {
+                    $q->where('manager_name', 'like', "%{$search}%")
+                    ->orWhere('expertise_area', 'like', "%{$search}%")
+                    ->orWhere('contact_information', 'like', "%{$search}%");
+                })
+                ->orderByDesc('manager_id');
+
+            $projectManagers = $query->get();
+
+            $data = $projectManagers->map(function ($manager) {
+                return [
+                    'manager_id' => encrypt($manager->manager_id),
+                    'manager_name' => $manager->manager_name,
+                    'expertise_area' => $manager->expertise_area,
+                ];
+            });
+
+            return response()->json([
+                'result' => true,
+                'data' => $data,
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'result' => false,
+                'message' => 'An error occurred while retrieving the project manager: ' . $e->getMessage(),
+            ]);
         }
     }
 }

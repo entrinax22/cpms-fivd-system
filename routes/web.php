@@ -4,6 +4,8 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PasswordChangeController;
+use App\Http\Controllers\ProjectManagerController;
+use App\Http\Controllers\DevelopmentTeamController;
 
 Route::middleware(['auth', 'verified', 'must_change_password'])->group(function () {
     Route::get('/', function () {
@@ -26,10 +28,16 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::get('/admin/project-managers', function () {
         return Inertia::render('project_managers/ProjectManagersTable');
     })->name('admin.project-managers');
-
     Route::get('/admin/project-managers/create', function () {
         return Inertia::render('project_managers/CreateProjectManagers');
     })->name('admin.project-manager.create');
+
+    Route::get('/admin/development-teams', function () {
+        return Inertia::render('development_teams/DevelopmentTeamsTable');
+    })->name('admin.development-teams');
+    Route::get('/admin/development-teams/create', function () {
+        return Inertia::render('development_teams/CreateDevelopmentTeams');
+    })->name('admin.development-teams.create');
 
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users/list', [UserController::class, 'list'])->name('admin.users.list');
@@ -39,12 +47,18 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::post('/admin/users/delete/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
     Route::get('/admin/users/show/{id}', [UserController::class, 'show'])->name('admin.users.show');
     
-    Route::post('/admin/project-managers', [App\Http\Controllers\ProjectManagerController::class, 'store'])->name('admin.project-managers.store');
-    Route::get('/admin/project-managers/list', [App\Http\Controllers\ProjectManagerController::class, 'list'])->name('admin.project-managers.list');
-    Route::get('/admin/project-managers/edit/{id}', [App\Http\Controllers\ProjectManagerController::class, 'edit'])->name('admin.project-managers.edit');
-    Route::post('/admin/project-managers/update/{id}', [App\Http\Controllers\ProjectManagerController::class, 'update'])->name('admin.project-managers.update');
-    Route::post('/admin/project-managers/delete/{id}', [App\Http\Controllers\ProjectManagerController::class, 'destroy'])->name('admin.project-managers.destroy');
+    Route::post('/admin/project-managers', [ProjectManagerController::class, 'store'])->name('admin.project-managers.store');
+    Route::get('/admin/project-managers/list', [ProjectManagerController::class, 'list'])->name('admin.project-managers.list');
+    Route::get('/admin/project-managers/edit/{manager_id}', [ProjectManagerController::class, 'edit'])->name('admin.project-managers.edit');
+    Route::post('/admin/project-managers/update/{manager_id}', [ProjectManagerController::class, 'update'])->name('admin.project-managers.update');
+    Route::post('/admin/project-managers/delete/{manager_id}', [ProjectManagerController::class, 'destroy'])->name('admin.project-managers.destroy');
+    Route::get('/admin/project-managers/selectList', [ProjectManagerController::class, 'selectList'])->name('admin.project-managers.selectList');
 
+    Route::post('/admin/development-teams/store', [DevelopmentTeamController::class, 'store'])->name('admin.development-teams.store');
+    Route::get('/admin/development-teams/list', [DevelopmentTeamController::class, 'list'])->name('admin.development-teams.list');
+    Route::get('/admin/development-teams/edit/{team_id}', [DevelopmentTeamController::class, 'edit'])->name('admin.development-teams.edit');
+    Route::post('/admin/development-teams/update/{team_id}', [DevelopmentTeamController::class, 'update'])->name('admin.development-teams.update');
+    Route::post('/admin/development-teams/delete/{team_id}', [DevelopmentTeamController::class, 'destroy'])->name('admin.development-teams.destroy');
 });
 
 Route::middleware('auth')->group(function () {

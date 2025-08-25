@@ -84,6 +84,8 @@ import { Head, router } from "@inertiajs/vue3";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import { ref } from "vue";
 import axios from "axios";
+import { toast } from "@/stores/ToastStore";
+
 const newUser = ref({
     name: "",
     email: "",
@@ -96,8 +98,14 @@ const submitAddUser = async () => {
         const response = await axios.post(route_url, newUser.value);
         if (response.data.result === true) {
             console.log(response.data.message);
+            newUser.value = {
+                name: "",
+                email: "",
+                role: ""
+            };
+            toast.show('User added successfully!', 'success');
         } else {
-            console.error(response.data.message);
+            toast.show('User adding error!', 'error');
         }
     } catch (error) {
         console.log(error);
