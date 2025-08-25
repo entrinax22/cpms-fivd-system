@@ -9,9 +9,14 @@ class DevelopmentTeam extends Model
     protected $table = 'development_teams';
     protected $primaryKey = 'team_id';
     protected $fillable = [
-        'manager_id',
         'team_name',
         'team_size',
-        'specialization'
+        'specialization',
+        'manager_id'
     ];
+
+    public function projectManager()
+    {
+        return $this->belongsTo(ProjectManager::class, 'manager_id', 'manager_id');
+    }
 }
