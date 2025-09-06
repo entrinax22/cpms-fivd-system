@@ -13,7 +13,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'role' => 'required|string|in:admin,employee',
+            'role' => 'required|string|in:admin,employee,engineer,manager',
         ]);
 
         $temporaryPassword = Str::random(10); 
@@ -197,6 +197,37 @@ class UserController extends Controller
             return response()->json([
                 'result' => false,
                 'message' => 'An error occurred while retrieving the user: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function select(Request $request){
+        try{
+            $search = $request->input('search');
+            $users = User::query()
+                ->when($search, function ($query) use ($search) {
+                    return $query->where('name', 'like', "%{$search}%")
+                                 ->orWhere('email', 'like', "%{$search}%");
+                })
+                ->orderByDesc('id')
+                ->get();
+
+            $data = $users->map(function ($user) {
+                return [
+                    'id' => encrypt($user->id),
+                    'name' => $user->name,
+                ];
+            });
+
+            return response()->json([
+                'result' => true,
+                'data' => $data,
+                'message' => 'Users List retrieved successfully.',
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'result' => false,
+                'message' => 'An error occurred while retrieving the user list: ' . $e->getMessage(),
             ], 500);
         }
     }

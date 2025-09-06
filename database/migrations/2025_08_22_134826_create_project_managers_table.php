@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('project_managers', function (Blueprint $table) {
             $table->id("manager_id");
+            $table->unsignedBigInteger('user_id');
             $table->string('manager_name');
             $table->string('expertise_area');
             $table->string('contact_information');
             $table->string('years_of_experience')->nullable();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

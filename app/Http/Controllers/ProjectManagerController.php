@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\ProjectManager;
 
@@ -20,14 +21,15 @@ class ProjectManagerController extends Controller
                     ->orWhere('expertise_area', 'like', "%{$search}%")
                     ->orWhere('contact_information', 'like', "%{$search}%");
                 })
-                ->orderByDesc('id');
+                ->orderByDesc('manager_id');
 
             $managers = $query->paginate($perPage, ['*'], 'page', $page);
 
             $data = $managers->getCollection()->map(function ($manager) {
                 return [
                     'manager_id' => encrypt($manager->manager_id),
-                    'manager_name' => $manager->manager_name,
+                    'user_id' => encrypt($manager->user_id),
+                    'manager_name' => User::find($manager->user_id)->name,
                     'expertise_area' => $manager->expertise_area,
                     'contact_information' => $manager->contact_information,
                     'years_of_experience' => $manager->years_of_experience,
@@ -57,15 +59,17 @@ class ProjectManagerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'manager_name' => 'required|string|max:255',
+            'user_id' => 'required|string',
             'expertise_area' => 'required|string|max:255',
             'contact_information' => 'required|string|max:255',
             'years_of_experience' => 'required|integer|min:0',
         ]);
 
         try {
+            $user_id = decrypt($request->input('user_id'));
             ProjectManager::create([
-                'manager_name' => $request->input('manager_name'),
+                'user_id' => $user_id,
+                'manager_name' => User::find($user_id)->name,
                 'expertise_area' => $request->input('expertise_area'),
                 'contact_information' => $request->input('contact_information'),
                 'years_of_experience' => $request->input('years_of_experience'),

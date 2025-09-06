@@ -9,6 +9,7 @@ class ProjectManager extends Model
     protected $table = 'project_managers';
     protected $primaryKey = 'manager_id';
     protected $fillable = [
+        'user_id',
         'manager_name',
         'expertise_area',
         'contact_information',

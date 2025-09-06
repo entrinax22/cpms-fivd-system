@@ -41,6 +41,7 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
 
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users/list', [UserController::class, 'list'])->name('admin.users.list');
+    Route::get('/admin/users/select', [UserController::class, 'select'])->name('admin.users.select');
     Route::get('/admin/users/selectList', [UserController::class, 'selectList'])->name('admin.users.selectList');
     Route::get('/admin/users/edit/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
     Route::post('/admin/users/update/{id}', [UserController::class, 'update'])->name('admin.users.update');
