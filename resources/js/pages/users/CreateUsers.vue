@@ -60,6 +60,7 @@
                                 <option value="admin">Admin</option>
                                 <option value="employee">Employee</option>
                                 <option value="manager">Manager</option>
+                                <option value="engineer">Engineer</option>
                             </select>
                         </div>
                     </div>

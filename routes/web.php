@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\ProjectManagerController;
 use App\Http\Controllers\DevelopmentTeamController;
+use App\Http\Controllers\DevelopmentToolController;
 
 Route::middleware(['auth', 'verified', 'must_change_password'])->group(function () {
     Route::get('/', function () {
@@ -39,6 +40,13 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
         return Inertia::render('development_teams/CreateDevelopmentTeams');
     })->name('admin.development-teams.create');
 
+    Route::get('/admin/development-tools', function () {
+        return Inertia::render('development_tools/DevelopmentToolsTable');
+    })->name('admin.development-tools');
+    Route::get('/admin/development-tools/create', function () {
+        return Inertia::render('development_tools/CreateDevelopmentTools');
+    })->name('admin.development-tools.create');
+
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users/list', [UserController::class, 'list'])->name('admin.users.list');
     Route::get('/admin/users/select', [UserController::class, 'select'])->name('admin.users.select');
@@ -60,6 +68,12 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::get('/admin/development-teams/edit/{team_id}', [DevelopmentTeamController::class, 'edit'])->name('admin.development-teams.edit');
     Route::post('/admin/development-teams/update/{team_id}', [DevelopmentTeamController::class, 'update'])->name('admin.development-teams.update');
     Route::post('/admin/development-teams/delete/{team_id}', [DevelopmentTeamController::class, 'destroy'])->name('admin.development-teams.destroy');
+
+    Route::post('/admin/development-tools/store', [DevelopmentToolController::class, 'store'])->name('admin.development-tools.store');
+    Route::get('/admin/development-tools/list', [DevelopmentToolController::class, 'list'])->name('admin.development-tools.list');
+    Route::get('/admin/development-tools/edit/{tool_id}', [DevelopmentToolController::class, 'edit'])->name('admin.development-tools.edit');
+    Route::post('/admin/development-tools/update/{tool_id}', [DevelopmentToolController::class, 'update'])->name('admin.development-tools.update');
+    Route::post('/admin/development-tools/delete/{tool_id}', [DevelopmentToolController::class, 'destroy'])->name('admin.development-tools.destroy');
 });
 
 Route::middleware('auth')->group(function () {

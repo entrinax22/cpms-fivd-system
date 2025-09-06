@@ -216,6 +216,7 @@ class UserController extends Controller
                 return [
                     'id' => encrypt($user->id),
                     'name' => $user->name,
+                    'role' => $user->role,
                 ];
             });
 

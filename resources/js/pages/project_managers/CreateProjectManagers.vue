@@ -77,8 +77,8 @@
                                 :clear-on-select="true"
                                 :allow-empty="true"
                             >
-                                <template #option="{ option }"> {{ option.name }} </template>
-                                <template #singleLabel="{ option }"> {{ option.name }}</template>
+                                <template #option="{ option }"> {{ option.name }} - {{ option.role ? option.role.toUpperCase() : '' }} </template>
+                                <template #singleLabel="{ option }"> {{ option.name }} - {{ option.role ? option.role.toUpperCase() : '' }}</template>
                             </Multiselect>
                         </div>
                     </div>

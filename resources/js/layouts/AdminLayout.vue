@@ -127,7 +127,8 @@ const reports = [
 const tables = [
   { icon: 'table_chart', label: 'Users Table', href: route('admin.users') },
   { icon: 'table_chart', label: 'Project Managers', href: route('admin.project-managers') },
-  { icon: 'table_chart', label: 'Development Teams', href: route('admin.development-teams') }
+  { icon: 'table_chart', label: 'Development Teams', href: route('admin.development-teams') },
+  { icon: 'table_chart', label: 'Development Tools', href: route('admin.development-tools') }
 ]
 
 const logout = () => {
