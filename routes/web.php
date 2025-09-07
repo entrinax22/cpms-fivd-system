@@ -63,6 +63,13 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
         return Inertia::render('testing_tools/CreateTestingTools');
     })->name('admin.testing-tools.create');
 
+    Route::get('/admin/projects', function () {
+        return Inertia::render('projects/ProjectsTable');
+    })->name('admin.projects');
+    Route::get('/admin/projects/create', function () {
+        return Inertia::render('projects/CreateProjects');
+    })->name('admin.projects.create');
+
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users/list', [UserController::class, 'list'])->name('admin.users.list');
     Route::get('/admin/users/select', [UserController::class, 'select'])->name('admin.users.select');
@@ -103,6 +110,8 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::get('/admin/testing-tools/edit/{testing_tool_id}', [TestingToolController::class, 'edit'])->name('admin.testing-tools.edit');
     Route::post('/admin/testing-tools/update/{testing_tool_id}', [TestingToolController::class, 'update'])->name('admin.testing-tools.update');
     Route::post('/admin/testing-tools/delete/{testing_tool_id}', [TestingToolController::class, 'destroy'])->name('admin.testing-tools.destroy');
+
+
 });
 
 Route::middleware('auth')->group(function () {
