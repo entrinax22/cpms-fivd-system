@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TestingTeamController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\ProjectManagerController;
 use App\Http\Controllers\DevelopmentTeamController;
@@ -47,6 +48,13 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
         return Inertia::render('development_tools/CreateDevelopmentTools');
     })->name('admin.development-tools.create');
 
+    Route::get('/admin/testing-teams', function () {
+        return Inertia::render('testing_teams/TestingTeamsTable');
+    })->name('admin.testing-teams');
+    Route::get('/admin/testing-teams/create', function () {
+        return Inertia::render('testing_teams/CreateTestingTeams');
+    })->name('admin.testing-teams.create');
+
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users/list', [UserController::class, 'list'])->name('admin.users.list');
     Route::get('/admin/users/select', [UserController::class, 'select'])->name('admin.users.select');
@@ -74,6 +82,12 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::get('/admin/development-tools/edit/{tool_id}', [DevelopmentToolController::class, 'edit'])->name('admin.development-tools.edit');
     Route::post('/admin/development-tools/update/{tool_id}', [DevelopmentToolController::class, 'update'])->name('admin.development-tools.update');
     Route::post('/admin/development-tools/delete/{tool_id}', [DevelopmentToolController::class, 'destroy'])->name('admin.development-tools.destroy');
+    
+    Route::post('/admin/testing-teams/store', [TestingTeamController::class, 'store'])->name('admin.testing-teams.store');
+    Route::get('/admin/testing-teams/list', [TestingTeamController::class, 'list'])->name('admin.testing-teams.list');
+    Route::get('/admin/testing-teams/edit/{testing_team_id}', [TestingTeamController::class, 'edit'])->name('admin.testing-teams.edit');
+    Route::post('/admin/testing-teams/update/{testing_team_id}', [TestingTeamController::class, 'update'])->name('admin.testing-teams.update');
+    Route::post('/admin/testing-teams/delete/{testing_team_id}', [TestingTeamController::class, 'destroy'])->name('admin.testing-teams.destroy');
 });
 
 Route::middleware('auth')->group(function () {

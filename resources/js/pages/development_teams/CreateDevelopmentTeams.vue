@@ -20,7 +20,7 @@
 
             <!-- Development Team Creation Form -->
             <div class="bg-white shadow-lg rounded-xl p-8 border border-gray-100">
-                <form @submit.prevent="submitAddTeam" class="space-y-6">
+                <form @submit.prevent="submit" class="space-y-6">
                     <!-- Grid Inputs -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Team Name -->
@@ -138,7 +138,7 @@ watch(selectedManager, (val) => {
     newTeam.value.manager_id = val ? val.manager_id : "";
 });
 
-const submitAddTeam = async () => {
+const submit = async () => {
     const route_url = route('admin.development-teams.store');
     try {
         const response = await axios.post(route_url, newTeam.value);

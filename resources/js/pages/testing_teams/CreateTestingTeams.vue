@@ -1,13 +1,13 @@
 <template>
-    <Head title="Create Development Tool" />
+    <Head title="Create Testing Team" />
 
     <AdminLayout>
         <div class="p-6 bg-gray-50 min-h-screen">
             <!-- Header -->
             <div class="mb-6 flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-800">Create Development Tool</h1>
-                    <p class="text-gray-500 mt-1">Fill out the form below to add a new development tool.</p>
+                    <h1 class="text-3xl font-bold text-gray-800">Create Testing Team</h1>
+                    <p class="text-gray-500 mt-1">Fill out the form below to add a new testing team.</p>
                 </div>
                 <!-- Back Button -->
                 <button 
@@ -18,51 +18,52 @@
                 </button>
             </div>
 
-            <!-- Development Tool Creation Form -->
+            <!-- Development Team Creation Form -->
             <div class="bg-white shadow-lg rounded-xl p-8 border border-gray-100">
                 <form @submit.prevent="submit" class="space-y-6">
                     <!-- Grid Inputs -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Tool Name -->
+                        <!-- Team Name -->
                         <div>
                             <label for="team_name" class="block text-sm font-semibold text-gray-700 mb-1">Team Name</label>
                             <input 
-                                v-model="newTool.tool_name" 
+                                v-model="newTestingTeam.team_name" 
                                 type="text" 
-                                id="tool_name" 
-                                placeholder="Enter tool name"
+                                id="team_name" 
+                                placeholder="Enter team name"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                                 required
                             />
                         </div>
 
-                        <!-- Tool Version -->
+                        <!-- Team Size -->
                         <div>
                             <label for="team_size" class="block text-sm font-semibold text-gray-700 mb-1">Team Size</label>
                             <input 
-                                v-model="newTool.tool_version" 
-                                type="text" 
-                                id="tool_version" 
-                                placeholder="Enter tool version"
+                                v-model="newTestingTeam.team_size" 
+                                type="number" 
+                                id="team_size" 
+                                min="1"
+                                placeholder="Enter number of members"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                                 required
                             />
                         </div>
 
-                        <!-- License Expiry Date -->
+                        <!-- Specialization -->
                         <div>
                             <label for="specialization" class="block text-sm font-semibold text-gray-700 mb-1">Specialization</label>
                             <input 
-                                v-model="newTool.license_expiry_date" 
-                                type="date" 
-                                id="license_expiry_date" 
-                                placeholder="Select license expiry date"
+                                v-model="newTestingTeam.specialization" 
+                                type="text" 
+                                id="specialization" 
+                                placeholder="e.g. Civil Works, Electrical, IT Systems"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                             />
                         </div>
 
                         <!-- Assign Manager (Searchable) -->
-                        <!-- <div>
+                        <div>
                             <label for="manager_id" class="block text-sm font-semibold text-gray-700 mb-1">Assign Manager</label>
                             <Multiselect
                                 v-model="selectedManager"
@@ -79,7 +80,7 @@
                                     {{ option.manager_name }} - ({{ option.expertise_area }})
                                 </template>
                             </Multiselect>
-                        </div> -->
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
@@ -105,51 +106,54 @@ import axios from "axios";
 import { toast } from "@/stores/ToastStore";
 
 // vue-multiselect
-// import Multiselect from "vue-multiselect";
-// import "vue-multiselect/dist/vue-multiselect.min.css";
+import Multiselect from "vue-multiselect";
+import "vue-multiselect/dist/vue-multiselect.min.css";
 
-const newTool = ref({
-    tool_name: "",
-    tool_version: "",
-    license_expiry_date: "",
+const newTestingTeam = ref({
+    team_name: "",
+    team_size: "",
+    specialization: "",
+    manager_id: ""
 });
 
-// const managers = ref([]);
-// const selectedManager = ref(null);
+const managers = ref([]);
+const selectedManager = ref(null);
 
-// const fetchManagers = async (search = "") => {
-//     try {
-//         const response = await axios.get(route("admin.project-managers.selectList"), {
-//             params: { search }
-//         });
-//         managers.value = response.data.data; 
-//     } catch (error) {
-//         console.error("Error fetching managers:", error);
-//     }
-// };
-// onMounted(()=>{
-//     fetchManagers();
-// })
+const fetchManagers = async (search = "") => {
+    try {
+        const response = await axios.get(route("admin.project-managers.selectList"), {
+            params: { search }
+        });
+        managers.value = response.data.data; 
+    } catch (error) {
+        console.error("Error fetching managers:", error);
+    }
+};
+onMounted(()=>{
+    fetchManagers();
+})
 
 // keep manager_id synced with selected manager
-// watch(selectedManager, (val) => {
-//     newTeam.value.manager_id = val ? val.manager_id : "";
-// });
+watch(selectedManager, (val) => {
+    newTestingTeam.value.manager_id = val ? val.manager_id : "";
+});
 
 const submit = async () => {
-    const route_url = route('admin.development-tools.store');
+    const route_url = route('admin.testing-teams.store');
     try {
-        const response = await axios.post(route_url, newTool.value);
+        const response = await axios.post(route_url, newTestingTeam.value);
         if (response.data.result === true) {
             console.log(response.data.message);
-            newTool.value = {
-                tool_name: "",
-                tool_version: "",
-                license_expiry_date: "",
+            newTestingTeam.value = {
+                team_name: "",
+                team_size: "",
+                specialization: "",
+                manager_id: ""
             };
-            toast.show("Development Tool added successfully!", "success");
+            selectedManager.value = null;
+            toast.show("Testing Team added successfully!", "success");
         } else {
-            toast.show("Development Tool adding error!", "error");
+            toast.show("Testing Team adding error!", "error");
         }
     } catch (error) {
         console.log(error);

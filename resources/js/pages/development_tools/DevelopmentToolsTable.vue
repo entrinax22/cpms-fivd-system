@@ -40,7 +40,7 @@
                 <!-- Add Team Button -->
                 <button
                     class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
-                    @click="addTeam"
+                    @click="go"
                 >
                     + Add Development Tool
                 </button>
@@ -235,7 +235,7 @@ const deleteTeam = async (tool_id) => {
   }
 };
 
-const addTeam = () => {
+const go = () => {
   router.get(route('admin.development-tools.create'));
 };
 </script>

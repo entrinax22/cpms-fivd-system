@@ -14,4 +14,9 @@ class TestingTeam extends Model
         'specialization',
         'manager_id'
     ];
+    
+    public function projectManager()
+    {
+        return $this->belongsTo(ProjectManager::class, 'manager_id', 'manager_id');
+    }
 }

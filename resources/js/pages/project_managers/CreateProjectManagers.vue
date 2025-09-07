@@ -20,7 +20,7 @@
 
             <!-- Project Manager Creation Form -->
             <div class="rounded-xl border border-gray-100 bg-white p-8 shadow-lg">
-                <form @submit.prevent="submitAddManager" class="space-y-6">
+                <form @submit.prevent="submit" class="space-y-6">
                     <!-- Grid Inputs -->
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <!-- Expertise Area -->
@@ -138,7 +138,7 @@ watch(selectedUser, (val) => {
     newManager.value.user_id = val ? val.id : null;
 });
 
-const submitAddManager = async () => {
+const submit = async () => {
     const route_url = route('admin.project-managers.store');
     try {
         const response = await axios.post(route_url, newManager.value);

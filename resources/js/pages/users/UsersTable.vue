@@ -39,7 +39,7 @@
                 <!-- Add User Button -->
                 <button
                     class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
-                    @click="addUser"
+                    @click="go"
                 >
                     + Add User
                 </button>
@@ -203,7 +203,7 @@ const totalPages = computed(() => pagination.value.last_page);
 //ends here for templating
 
 
-function addUser() {
+function go() {
   router.get(route('admin.users.create'));
 }
 

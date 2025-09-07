@@ -1,12 +1,12 @@
 <template>
-    <Head title="Development Teams Table" />
+    <Head title="Testing Teams Table" />
 
     <AdminLayout>
         <div class="p-6 bg-gray-50 min-h-screen">
             <!-- Dashboard Header -->
             <div class="mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">Development Teams Table</h1>
-                <p class="text-gray-500">Manage development teams and their details.</p>
+                <h1 class="text-3xl font-bold text-gray-800">Testing Teams Table</h1>
+                <p class="text-gray-500">Manage testing teams and their details.</p>
             </div>
 
             <!-- Table Controls -->
@@ -42,7 +42,7 @@
                     class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
                     @click="go"
                 >
-                    + Add Development Team
+                    + Add Testing Team
                 </button>
             </div>
 
@@ -58,8 +58,8 @@
                     :per-page="pagination.per_page"
                 >
                     <template #actions="{ row }">
-                        <button @click="editTeam(row.team_id)" class="px-2 py-1 text-xs font-semibold bg-yellow-500 text-white rounded shadow hover:bg-yellow-600 transition">Edit</button>
-                        <button @click="deleteTeam(row.team_id)" class="px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded shadow hover:bg-red-600 transition">Delete</button>
+                        <button @click="editTeam(row.testing_team_id)" class="px-2 py-1 text-xs font-semibold bg-yellow-500 text-white rounded shadow hover:bg-yellow-600 transition">Edit</button>
+                        <button @click="deleteTeam(row.testing_team_id)" class="px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded shadow hover:bg-red-600 transition">Delete</button>
                     </template>
                 </BaseTable>
             </div>
@@ -70,7 +70,7 @@
             <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
                 <h2 class="text-xl font-semibold mb-4">Edit Development Team</h2>
 
-                <form @submit.prevent="updateTeam(editTeamData.team_id)">
+                <form @submit.prevent="updateTeam(editTeamData.testing_team_id)">
                     <!-- Team Name -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Team Name</label>
@@ -148,18 +148,18 @@ const columns = [
   { key: 'manager_name', label: 'Manager' },
 ];
 
-const developmentTeams = ref([]);
+const testingTeams = ref([]);
 const pagination = ref({ current_page: 1, last_page: 1, per_page: 10, total: 0 });
 const rowsPerPage = ref(10);
 const currentPage = ref(1);
 
 const fetchTeams = async () => {
   try {
-    const res = await axios.get(route('admin.development-teams.list'), {
+    const res = await axios.get(route('admin.testing-teams.list'), {
       params: { search: search.value, page: currentPage.value, per_page: rowsPerPage.value }
     });
     if (res.data.result) {
-      developmentTeams.value = res.data.data.map(team => ({
+      testingTeams.value = res.data.data.map(team => ({
         ...team,
         manager_name: team.manager?.manager_name || "—"
       }));
@@ -178,7 +178,7 @@ watch([search, rowsPerPage], () => {
 const nextPage = () => { if (currentPage.value < pagination.value.last_page) { currentPage.value++; fetchTeams(); }};
 const prevPage = () => { if (currentPage.value > 1) { currentPage.value--; fetchTeams(); }};
 
-const paginatedTeams = computed(() => developmentTeams.value);
+const paginatedTeams = computed(() => testingTeams.value);
 const totalPages = computed(() => pagination.value.last_page);
 
 // Edit Modal
@@ -188,10 +188,10 @@ const editTeamData = ref(null);
 
 const handleCloseEditModal = () => { showEditModal.value = false; editTeamData.value = null; };
 
-const editTeam = async (team_id) => {
+const editTeam = async (testing_team_id) => {
   try {
-    const res = await axios.get(route('admin.development-teams.edit', { team_id }));
-    if (res.data.result) {
+    const res = await axios.get(route('admin.testing-teams.edit', { testing_team_id }));
+    if (res.data.result === true) {
         const { team, managers: mgrs } = res.data.data;
         managers.value = mgrs;
         const selectedManager = managers.value.find(m => m.manager_id === team.manager_id);
@@ -204,13 +204,13 @@ const editTeam = async (team_id) => {
   } catch (err) { console.error(err); }
 };
 
-const updateTeam = async (team_id) => {
+const updateTeam = async (testing_team_id) => {
   try {
     const payload = {
         ...editTeamData.value,
         manager_id: editTeamData.value.manager?.manager_id || null
     };
-    const res = await axios.post(route('admin.development-teams.update', { team_id }), payload);
+    const res = await axios.post(route('admin.testing-teams.update', { testing_team_id }), payload);
     if (res.data.result) {
       handleCloseEditModal();
       toast.show("Team updated successfully!", "success");
@@ -224,11 +224,11 @@ const updateTeam = async (team_id) => {
   }
 };
 
-const deleteTeam = async (team_id) => {
-  if (!confirm('Are you sure you want to delete this development team?')) return;
+const deleteTeam = async (testing_team_id) => {
+  if (!confirm('Are you sure you want to delete this testing team?')) return;
 
   try {
-    const res = await axios.post(route('admin.development-teams.destroy', { team_id }));
+    const res = await axios.post(route('admin.testing-teams.destroy', { testing_team_id }));
     if (res.data.result) {
       toast.show("Team deleted successfully!", "success");
       fetchTeams();
@@ -242,6 +242,6 @@ const deleteTeam = async (team_id) => {
 };
 
 const go = () => {
-  router.get(route('admin.development-teams.create'));
+  router.get(route('admin.testing-teams.create'));
 };
 </script>

@@ -20,7 +20,7 @@
 
             <!-- User Creation Form -->
             <div class="bg-white shadow-lg rounded-xl p-8 border border-gray-100">
-                <form @submit.prevent="submitAddUser" class="space-y-6">
+                <form @submit.prevent="submit" class="space-y-6">
                     <!-- Grid Inputs -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Name -->
@@ -93,7 +93,7 @@ const newUser = ref({
     role: ""
 });
 
-const submitAddUser = async () => {
+const submit = async () => {
     const route_url = route('admin.users.store');
     try {
         const response = await axios.post(route_url, newUser.value);
