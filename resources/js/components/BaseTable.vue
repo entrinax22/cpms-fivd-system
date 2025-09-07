@@ -14,7 +14,9 @@
         <tr v-for="(row, index) in data" :key="index" class="border-t hover:bg-gray-50">
           <td class="px-4 py-2 text-center text-gray-600">{{ (currentPage - 1) * perPage + index + 1 }}</td>
           <td v-for="col in columns" :key="col.key" class="px-4 py-2 text-sm text-gray-700">
-            {{ row[col.key] }}
+            <slot :name="col.key" :row="row" :value="row[col.key]">
+              {{ row[col.key] }}
+            </slot>
           </td>
           <td class="px-4 py-2 flex justify-center gap-2">
             <slot name="actions" :row="row" />

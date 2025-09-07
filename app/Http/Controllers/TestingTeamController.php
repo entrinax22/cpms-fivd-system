@@ -176,4 +176,49 @@ class TestingTeamController extends Controller
             ], 500);
         }
     }
+
+    
+    public function selectList(Request $request){
+        try{
+            $search = $request->search;
+            $query = TestingTeam::query()
+                ->when($search, function ($q) use ($search) {
+                    $q->where('team_name', 'like', "%{$search}%")
+                    ->orWhere('team_size', 'like', "%{$search}%")
+                    ->orWhere('specialization', 'like', "%{$search}%")
+                    ->orWhereHas('projectManager', function ($q) use ($search) {
+                        $q->where('manager_name', 'like', "%{$search}%");
+                    });
+                })
+                ->orderByDesc('testing_team_id');
+
+            $testingTeam = $query->get();
+
+            $data = $testingTeam->map(function ($testTeam) {
+                return [
+                    'testing_team_id' => encrypt($testTeam->testing_team_id),
+                    'team_name' => $testTeam->team_name,
+                    'team_size' => $testTeam->team_size,
+                    'specialization' => $testTeam->specialization,
+                    'manager' => $testTeam->projectManager ? [
+                        'manager_id' => encrypt($testTeam->projectManager->manager_id),
+                        'manager_name' => $testTeam->projectManager->manager_name,
+                        'expertise_area' => $testTeam->projectManager->expertise_area,
+                        'contact_information' => $testTeam->projectManager->contact_information,
+                        'years_of_experience' => $testTeam->projectManager->years_of_experience,
+                    ] : null,
+                ];
+            });
+
+            return response()->json([
+                'result' => true,
+                'data' => $data,
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'result' => false,
+                'message' => 'An error occurred while retrieving the project manager: ' . $e->getMessage(),
+            ]);
+        }
+    }
 }

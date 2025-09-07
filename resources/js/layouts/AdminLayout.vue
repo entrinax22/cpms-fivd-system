@@ -130,6 +130,7 @@ const tables = [
   { icon: 'table_chart', label: 'Development Teams', href: route('admin.development-teams') },
   { icon: 'table_chart', label: 'Development Tools', href: route('admin.development-tools') },
   { icon: 'table_chart', label: 'Testing Teams', href: route('admin.testing-teams') },
+  { icon: 'table_chart', label: 'Testing Tools', href: route('admin.testing-tools') },
 ]
 
 const logout = () => {
