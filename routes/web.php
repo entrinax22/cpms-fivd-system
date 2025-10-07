@@ -3,6 +3,8 @@
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TestingTeamController;
 use App\Http\Controllers\TestingToolController;
 use App\Http\Controllers\PasswordChangeController;
@@ -70,6 +72,13 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
         return Inertia::render('projects/CreateProjects');
     })->name('admin.projects.create');
 
+    Route::get('/admin/clients', function () {
+        return Inertia::render('clients/ClientsTable');
+    })->name('admin.clients');
+    Route::get('/admin/clients/create', function () {
+        return Inertia::render('clients/CreateClient');
+    })->name('admin.clients.create');
+
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users/list', [UserController::class, 'list'])->name('admin.users.list');
     Route::get('/admin/users/select', [UserController::class, 'select'])->name('admin.users.select');
@@ -111,7 +120,19 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::post('/admin/testing-tools/update/{testing_tool_id}', [TestingToolController::class, 'update'])->name('admin.testing-tools.update');
     Route::post('/admin/testing-tools/delete/{testing_tool_id}', [TestingToolController::class, 'destroy'])->name('admin.testing-tools.destroy');
 
+    Route::post('/admin/projects/store', [ProjectController::class, 'store'])->name('admin.projects.store');
+    Route::get('/admin/projects/list', [ProjectController::class, 'list'])->name('admin.projects.list');
+    Route::get('/admin/projects/edit/{project_id}', [ProjectController::class, 'edit'])->name('admin.projects.edit');
+    Route::post('/admin/projects/update/{project_id}', [ProjectController::class, 'update'])->name('admin.projects.update');
+    Route::post('/admin/projects/delete/{project_id}', [ProjectController::class, 'destroy'])->name('admin.projects.destroy');
+    Route::get('/admin/projects/selectList', [ProjectController::class, 'selectList'])->name('admin.projects.selectList');
 
+    Route::post('/admin/clients/store', [ClientController::class, 'store'])->name('admin.clients.store');
+    Route::get('/admin/clients/list', [ClientController::class, 'list'])->name('admin.clients.list');
+    Route::get('/admin/clients/edit/{client_id}', [ClientController::class, 'edit'])->name('admin.clients.edit');
+    Route::post('/admin/clients/update/{client_id}', [ClientController::class, 'update'])->name('admin.clients.update');
+    Route::post('/admin/clients/delete/{client_id}', [ClientController::class, 'destroy'])->name('admin.clients.destroy');
+    Route::get('/admin/clients/selectList', [ClientController::class, 'selectList'])->name('admin.clients.selectList');
 });
 
 Route::middleware('auth')->group(function () {

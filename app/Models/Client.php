@@ -14,4 +14,9 @@ class Client extends Model
         'registration_date',
         'client_type'
     ];
+
+    public function projects()
+    {
+        return $this->hasMany(Project::class, 'client_id', 'client_id');
+    }
 }

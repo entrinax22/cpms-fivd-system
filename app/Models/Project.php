@@ -17,4 +17,14 @@ class Project extends Model
         'project_description',
         'status'
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id', 'client_id');
+    }
+
+    public function manager()
+    {
+        return $this->hasOne(ProjectManager::class, 'manager_id', 'manager_id');
+    }
 }

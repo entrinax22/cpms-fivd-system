@@ -15,4 +15,8 @@ class ProjectManager extends Model
         'contact_information',
         'years_of_experience',
     ];
+
+    public function manager(){
+        return $this->belongsTo(Project::class, 'manager_id', 'manager_id');
+    }
 }
