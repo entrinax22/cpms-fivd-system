@@ -60,6 +60,9 @@
                     :on-prev-page="prevPage"
                     :per-page="pagination.per_page"
                 >
+                    <template #registration_date="{ row }">
+                        {{ formatDate(row.registration_date) }}
+                    </template>
                     <template #actions="{ row }">
                         <button
                             @click="editClient(row.client_id)"
@@ -183,6 +186,11 @@ async function fetchClients() {
     } catch (error) {
         console.error('Error fetching clients:', error);
     }
+}
+
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
 }
 
 onMounted(fetchClients);

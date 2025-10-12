@@ -27,4 +27,9 @@ class Project extends Model
     {
         return $this->hasOne(ProjectManager::class, 'manager_id', 'manager_id');
     }
+
+    public function project_progress()
+    {
+        return $this->hasMany(ProjectProgress::class, 'project_id', 'project_id');
+    }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\ProjectManagerController;
 use App\Http\Controllers\DevelopmentTeamController;
 use App\Http\Controllers\DevelopmentToolController;
+use App\Http\Controllers\ProjectProgressController;
 
 Route::middleware(['auth', 'verified', 'must_change_password'])->group(function () {
     Route::get('/', function () {
@@ -79,6 +80,13 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
         return Inertia::render('clients/CreateClient');
     })->name('admin.clients.create');
 
+    Route::get('/admin/project_progress', function () {
+        return Inertia::render('project_progress/ProjectProgressTable');
+    })->name('admin.project_progress');
+    Route::get('/admin/project_progress/create', function () {
+        return Inertia::render('project_progress/CreateProjectProgress');
+    })->name('admin.project_progress.create');
+
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users/list', [UserController::class, 'list'])->name('admin.users.list');
     Route::get('/admin/users/select', [UserController::class, 'select'])->name('admin.users.select');
@@ -133,6 +141,12 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::post('/admin/clients/update/{client_id}', [ClientController::class, 'update'])->name('admin.clients.update');
     Route::post('/admin/clients/delete/{client_id}', [ClientController::class, 'destroy'])->name('admin.clients.destroy');
     Route::get('/admin/clients/selectList', [ClientController::class, 'selectList'])->name('admin.clients.selectList');
+   
+    Route::post('/admin/project_progress/store', [ProjectProgressController::class, 'store'])->name('admin.project_progress.store');
+    Route::get('/admin/project_progress/list', [ProjectProgressController::class, 'list'])->name('admin.project_progress.list');
+    Route::get('/admin/project_progress/edit/{project_progress_id}', [ProjectProgressController::class, 'edit'])->name('admin.project_progress.edit');
+    Route::post('/admin/project_progress/update/{project_progress_id}', [ProjectProgressController::class, 'update'])->name('admin.project_progress.update');
+    Route::post('/admin/project_progress/delete/{project_progress_id}', [ProjectProgressController::class, 'destroy'])->name('admin.project_progress.destroy');
 });
 
 Route::middleware('auth')->group(function () {

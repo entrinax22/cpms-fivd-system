@@ -61,6 +61,12 @@
                     :on-prev-page="prevPage"
                     :per-page="pagination.per_page"
                 >
+                    <template #start_date="{ row }">
+                        {{ formatDate(row.start_date) }}
+                    </template>
+                    <template #estimated_end_date="{ row }">
+                        {{ formatDate(row.estimated_end_date) }}
+                    </template>
                     <template #actions="{ row }">
                         <button
                             @click="editProject(row.project_id)"
@@ -227,6 +233,11 @@ async function fetch() {
 
 onMounted(fetch);
 watch([search, rowsPerPage], fetch);
+
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
 
 function nextPage() {
     if (currentPage.value < pagination.value.last_page) {

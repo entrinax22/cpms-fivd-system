@@ -34,27 +34,6 @@
 
                 <hr class="border-yellow-700" />
 
-                <!-- Reports -->
-                <div>
-                    <p v-if="!collapsed" class="mb-2 text-xs font-semibold tracking-wider text-yellow-200 uppercase">Reports</p>
-                    <ul class="space-y-2">
-                        <li v-for="item in reports" :key="item.label">
-                            <Link
-                                :href="route(item.route)"
-                                :class="[
-                                    'flex items-center gap-3 rounded-lg px-3 py-2 text-yellow-100 transition hover:bg-yellow-900 hover:text-white',
-                                    $page.component === item.component ? 'bg-yellow-900 font-bold text-white shadow ring-2 ring-yellow-400' : '',
-                                ]"
-                            >
-                                <span class="material-icons">{{ item.icon }}</span>
-                                <span v-if="!collapsed" class="font-medium">{{ item.label }}</span>
-                            </Link>
-                        </li>
-                    </ul>
-                </div>
-
-                <hr class="border-yellow-700" />
-
                 <!-- Tables -->
                 <div>
                     <p v-if="!collapsed" class="mb-2 text-xs font-semibold tracking-wider text-yellow-200 uppercase">Tables</p>
@@ -109,17 +88,11 @@ const collapsed = ref(false);
 
 // Management links
 const platforms = [
-    { icon: 'dashboard', label: 'Dashboard', route: 'admin.dashboard', component: 'admin/AdminDashboard' },
     { icon: 'home', label: 'Homepage', route: 'home', component: 'Homepage' },
+    { icon: 'dashboard', label: 'Dashboard', route: 'admin.dashboard', component: 'admin/AdminDashboard' },
     { icon: 'engineering', label: 'Projects', route: 'admin.projects', component: 'projects/ProjectsTable' },
     // { icon: 'group', label: 'Users', route: 'admin.users', component: 'Admin/Users/Index' },
     // { icon: 'settings', label: 'Settings', route: 'admin.settings', component: 'Admin/Settings/Index' },
-];
-
-// Reports links
-const reports = [
-    // { icon: 'bar_chart', label: 'Analytics', route: 'admin.analytics', component: 'Admin/Analytics/Index' },
-    // { icon: 'description', label: 'Logs', route: 'admin.logs', component: 'Admin/Logs/Index' },
 ];
 
 // Tables links
@@ -131,6 +104,7 @@ const tables = [
     { icon: 'table_chart', label: 'Development Tools', route: 'admin.development-tools', component: 'development_tools/DevelopmentToolsTable' },
     { icon: 'table_chart', label: 'Testing Teams', route: 'admin.testing-teams', component: 'testing_teams/TestingTeamsTable' },
     { icon: 'table_chart', label: 'Testing Tools', route: 'admin.testing-tools', component: 'testing_tools/TestingToolsTable' },
+    { icon: 'table_chart', label: 'Project Progress', route: 'admin.project_progress', component: 'project_progress/ProjectProgressTable' },
 ];
 
 const logout = () => {
