@@ -50,4 +50,9 @@ class User extends Authenticatable
             'password_expires_at' => 'datetime',
         ];
     }
+
+    public function requestedTools()
+    {
+        return $this->hasMany(RequestedTool::class, 'user_id');
+    }
 }

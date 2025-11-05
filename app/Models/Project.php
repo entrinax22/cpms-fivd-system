@@ -32,4 +32,9 @@ class Project extends Model
     {
         return $this->hasMany(ProjectProgress::class, 'project_id', 'project_id');
     }
+
+    public function requestedTools()
+    {
+        return $this->hasMany(RequestedTool::class, 'project_id', 'project_id');
+    }
 }

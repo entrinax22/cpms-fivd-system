@@ -67,6 +67,45 @@
                     <template #estimated_end_date="{ row }">
                         {{ formatDate(row.estimated_end_date) }}
                     </template>
+                    <template #manager_name="{ row }">
+                        <div class="px-3 py-2">
+                            <!-- Manager Info -->
+                            <div class="flex items-center space-x-3">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-800">
+                                        {{ row.manager_name || 'No Manager Assigned' }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">Project Manager</p>
+                                </div>
+                            </div>
+
+                            <!-- Teams -->
+                            <div v-if="development_teams[projects.indexOf(row)]?.length" class="mt-2 flex flex-wrap gap-2">
+                                <template v-for="team in development_teams[projects.indexOf(row)]" :key="development_teams.team_id">
+                                    <span
+                                        class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-200"
+                                        style="cursor: pointer"
+                                    >
+                                        {{ team.team_name }}
+                                    </span>
+                                </template>
+                            </div>
+
+                            <div v-if="testing_teams[projects.indexOf(row)]?.length" class="mt-2 flex flex-wrap gap-2">
+                                <template v-for="team in testing_teams[projects.indexOf(row)]" :key="testing_teams.testing_team_id">
+                                    <span
+                                        class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-green-200"
+                                        style="cursor: pointer"
+                                    >
+                                        {{ team.team_name }}
+                                    </span>
+                                </template>
+                            </div>
+
+                            <div v-else class="mt-2 text-xs text-gray-400 italic">No development teams assigned</div>
+                        </div>
+                    </template>
+
                     <template #actions="{ row }">
                         <button
                             @click="editProject(row.project_id)"
@@ -212,6 +251,8 @@ const columns = [
 ];
 
 const projects = ref([]);
+const development_teams = ref([]);
+const testing_teams = ref([]);
 const pagination = ref({ current_page: 1, last_page: 1, per_page: 10 });
 const rowsPerPage = ref(10);
 const currentPage = ref(1);
@@ -222,8 +263,10 @@ async function fetch() {
         const response = await axios.get(route_url, {
             params: { search: search.value, page: currentPage.value, per_page: rowsPerPage.value },
         });
-        if (response.data.result) {
+        if (response.data.result === true) {
             projects.value = response.data.data;
+            development_teams.value = response.data.development_teams;
+            testing_teams.value = response.data.testing_teams;
             pagination.value = response.data.pagination;
         }
     } catch (e) {

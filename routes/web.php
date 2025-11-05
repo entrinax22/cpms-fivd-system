@@ -80,12 +80,9 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
         return Inertia::render('clients/CreateClient');
     })->name('admin.clients.create');
 
-    Route::get('/admin/project_progress', function () {
-        return Inertia::render('project_progress/ProjectProgressTable');
-    })->name('admin.project_progress');
-    Route::get('/admin/project_progress/create', function () {
-        return Inertia::render('project_progress/CreateProjectProgress');
-    })->name('admin.project_progress.create');
+    
+    Route::get('/admin/project_progress', [ProjectProgressController::class, 'index'])->name('admin.project_progress');
+    Route::get('/admin/project_progress/create', [ProjectProgressController::class, 'create'])->name('admin.project_progress.create');
 
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users/list', [UserController::class, 'list'])->name('admin.users.list');
@@ -108,6 +105,7 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::get('/admin/development-teams/edit/{team_id}', [DevelopmentTeamController::class, 'edit'])->name('admin.development-teams.edit');
     Route::post('/admin/development-teams/update/{team_id}', [DevelopmentTeamController::class, 'update'])->name('admin.development-teams.update');
     Route::post('/admin/development-teams/delete/{team_id}', [DevelopmentTeamController::class, 'destroy'])->name('admin.development-teams.destroy');
+    Route::get('/admin/development-teams/selectList', [DevelopmentTeamController::class, 'selectList'])->name('admin.development-teams.selectList');
 
     Route::post('/admin/development-tools/store', [DevelopmentToolController::class, 'store'])->name('admin.development-tools.store');
     Route::get('/admin/development-tools/list', [DevelopmentToolController::class, 'list'])->name('admin.development-tools.list');
@@ -127,6 +125,7 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::get('/admin/testing-tools/edit/{testing_tool_id}', [TestingToolController::class, 'edit'])->name('admin.testing-tools.edit');
     Route::post('/admin/testing-tools/update/{testing_tool_id}', [TestingToolController::class, 'update'])->name('admin.testing-tools.update');
     Route::post('/admin/testing-tools/delete/{testing_tool_id}', [TestingToolController::class, 'destroy'])->name('admin.testing-tools.destroy');
+    Route::get('/admin/testing-tools/selectList', [TestingToolController::class, 'selectList'])->name('admin.testing-tools.selectList');
 
     Route::post('/admin/projects/store', [ProjectController::class, 'store'])->name('admin.projects.store');
     Route::get('/admin/projects/list', [ProjectController::class, 'list'])->name('admin.projects.list');

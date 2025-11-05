@@ -18,4 +18,9 @@ class TestingTool extends Model
     {
         return $this->belongsTo(TestingTeam::class, 'testing_team_id', 'testing_team_id');
     }
+
+    public function requestedTools()
+    {
+        return $this->hasMany(RequestedTool::class, 'testing_tool_id', 'testing_tool_id');
+    }
 }

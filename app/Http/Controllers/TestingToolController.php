@@ -176,4 +176,46 @@ class TestingToolController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Return list of testing tools for dropdown or select input.
+     */
+    public function selectList(Request $request)
+    {
+        try {
+            $search = $request->search;
+
+            $testing_tools = TestingTool::with('testingTeam')
+                ->when($search, function ($query, $search) {
+                    $query->where('testing_tool_name', 'like', "%{$search}%")
+                          ->orWhere('license_key', 'like', "%{$search}%")
+                          ->orWhereHas('testingTeam', function ($q) use ($search) {
+                              $q->where('team_name', 'like', "%{$search}%");
+                          });
+                })
+                ->orderBy('testing_tool_id')
+                ->get();
+
+            $data = $testing_tools->map(function ($testTool) {
+                return [
+                    'testing_tool_id' => encrypt($testTool->testing_tool_id),
+                    'testing_tool_name' => $testTool->testing_tool_name,
+                    'testing_team' => $testTool->testingTeam ? [
+                        'testing_team_id' => encrypt($testTool->testingTeam->testing_team_id),
+                        'team_name' => $testTool->testingTeam->team_name,
+                    ] : null,
+                ];
+            });
+
+            return response()->json([
+                'result' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'Error retrieving testing tools list: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

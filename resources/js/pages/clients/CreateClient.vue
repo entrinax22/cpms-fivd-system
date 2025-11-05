@@ -51,7 +51,7 @@
 
                         <!--Client Type-->
                         <div>
-                            <label for="contact_information" class="mb-1 block text-sm font-semibold text-gray-700">Contact Information</label>
+                            <label for="client_type" class="mb-1 block text-sm font-semibold text-gray-700">Contact Type</label>
                             <input
                                 v-model="newClient.client_type"
                                 type="text"

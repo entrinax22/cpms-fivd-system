@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Project;
 use App\Models\Client;
-use App\Models\ProjectManager;
+use App\Models\Project;
 use Illuminate\Http\Request;
+use App\Models\ProjectManager;
+use App\Services\SemaphoreService;
 
 class ProjectController extends Controller
 {
+    protected $semaphore;
+
+    public function __construct(SemaphoreService $semaphore)
+    {
+        $this->semaphore = $semaphore;   
+    }
+
     /**
      * Display a paginated list of projects with optional search.
      */
@@ -19,7 +27,7 @@ class ProjectController extends Controller
             $perPage = $request->input('per_page', 10);
             $page = $request->input('page', 1);
 
-            $query = Project::with(['client', 'manager'])
+            $query = Project::with(['client', 'manager', 'manager.devTeam', 'manager.testTeam'])
                 ->when($search, function ($q) use ($search) {
                     $q->where('project_name', 'like', "%{$search}%")
                         ->orWhere('project_description', 'like', "%{$search}%")
@@ -28,12 +36,40 @@ class ProjectController extends Controller
                         })
                         ->orWhereHas('manager', function ($q) use ($search) {
                             $q->where('manager_name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('manager.devTeam', function ($q) use ($search) {
+                            $q->where('team_name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('manager.testTeam', function ($q) use ($search) {
+                            $q->where('team_name', 'like', "%{$search}%");
                         });
                 })
                 ->orderByDesc('project_id');
 
             $projects = $query->paginate($perPage, ['*'], 'page', $page);
 
+            $dev_teams = $projects->getCollection()->map(function ($project) {
+                return optional($project->manager)->devTeam
+                    ? $project->manager->devTeam->map(function ($team) {
+                        return [
+                            'team_id' => encrypt($team->team_id),
+                            'team_name' => $team->team_name,
+                        ];
+                    })
+                    : [];
+            });
+
+            $test_teams = $projects->getCollection()->map(function ($project) {
+                return optional($project->manager)->testTeam
+                    ? $project->manager->testTeam->map(function ($team) {
+                        return [
+                            'testing_team_id' => encrypt($team->testing_team_id),
+                            'team_name' => $team->team_name,
+                        ];
+                    })
+                    : [];
+            });
+            
             $data = $projects->getCollection()->map(function ($project) {
                 return [
                     'project_id' => encrypt($project->project_id),
@@ -54,6 +90,8 @@ class ProjectController extends Controller
             return response()->json([
                 'result' => true,
                 'data' => $data,
+                'development_teams' => $dev_teams,
+                'testing_teams' => $test_teams,
                 'pagination' => [
                     'current_page' => $projects->currentPage(),
                     'per_page' => $projects->perPage(),
@@ -88,7 +126,7 @@ class ProjectController extends Controller
         try {
             $clientId = decrypt($request->input('client_id'));
             $managerId = decrypt($request->input('manager_id'));
-
+            $responses = [];
             $project = Project::create([
                 'project_name' => $request->input('project_name'),
                 'client_id' => $clientId,
@@ -99,9 +137,37 @@ class ProjectController extends Controller
                 'status' => $request->input('status'),
             ]);
 
+            $project->load('client', 'manager');
+
+            $client = Client::find($clientId);
+            if ($client?->contact_information) {
+                $clientMessage = sprintf(
+                    "New project '%s' has been created for client '%s'.",
+                    $project->project_name,
+                    $client->client_name
+                );
+
+                $responses['client'] = $this->semaphore->sendSMS($client->contact_information, $clientMessage);
+            } else {
+                Log::warning("Client with ID {$clientId} not found or missing contact number. SMS not sent.");
+            }
+
+            $manager = ProjectManager::find($managerId);
+            if ($manager?->contact_information) {
+                $managerMessage = sprintf(
+                    "You have been assigned as the manager for the new project '%s'.",
+                    $project->project_name
+                );
+
+                $responses['manager'] = $this->semaphore->sendSMS($manager->contact_information, $managerMessage);
+            } else {
+                Log::warning("Project Manager with ID {$managerId} not found or missing contact number. SMS not sent.");
+            }
+
             return response()->json([
                 'result' => true,
                 'message' => 'Project created successfully.',
+                'responses' => $responses,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -210,6 +276,31 @@ class ProjectController extends Controller
                 'project_description' => $request->input('project_description'),
                 'status' => $request->input('status'),
             ]);
+
+            $project->load('client', 'manager');
+
+            $client = Client::find($clientId);
+            if ($client?->contact_information) {
+                $clientMessage = sprintf(
+                    "Project '%s' has been updated for client '%s'.",
+                    $project->project_name,
+                    $client->client_name
+                );
+                $response = $this->semaphore->sendSMS($client->contact_information, $clientMessage);
+            } else {
+                Log::warning("Client with ID {$clientId} not found or missing contact number. SMS not sent.");
+            }
+
+            $manager = ProjectManager::find($managerId);
+            if ($manager?->contact_information) {
+                $managerMessage = sprintf(
+                    "You have been assigned as the manager for the updated project '%s'.",
+                    $project->project_name
+                );
+                $response = $this->semaphore->sendSMS($manager->contact_information, $managerMessage);
+            } else {
+                Log::warning("Project Manager with ID {$managerId} not found or missing contact number. SMS not sent.");
+            }
 
             return response()->json([
                 'result' => true,

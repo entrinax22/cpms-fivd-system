@@ -180,6 +180,49 @@ class DevelopmentTeamController extends Controller
             ], 500);
         }
     }
-    
+
+    /**
+     * Return list of testing tools for dropdown or select input.
+     */
+    public function selectList(Request $request)
+    {
+        try {
+            $search = $request->search;
+
+            $devTeams = DevelopmentTeam::with('projectManager')
+                ->when($search, function ($query, $search) {
+                    $query->where('team_name', 'like', "%{$search}%")
+                        ->orWhere('specialization', 'like', "%{$search}%")
+                        ->orWhereHas('projectManager', function ($q) use ($search) {
+                            $q->where('manager_name', 'like', "%{$search}%")
+                              ->orWhere('expertise_area', 'like', "%{$search}%");
+                        });
+                })
+                ->orderBy('team_id')
+                ->get();
+
+            $data = $devTeams->map(function ($devTeam) {
+                return [
+                    'team_id' => encrypt($devTeam->team_id),
+                    'team_name' => $devTeam->team_name,
+                    'specialization' => $devTeam->specialization,
+                    'manager' => $devTeam->projectManager ? [
+                        'manager_id' => encrypt($devTeam->projectManager->manager_id),
+                        'manager_name' => $devTeam->projectManager->manager_name,
+                    ] : null,
+                ];
+            });
+
+            return response()->json([
+                'result' => true,
+                'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'Error retrieving development teams list: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 
 }

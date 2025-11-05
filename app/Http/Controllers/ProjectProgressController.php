@@ -2,13 +2,36 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Models\ProjectProgress;
 use Illuminate\Support\Facades\Storage;
 
 class ProjectProgressController extends Controller
-{
+{   
+    public function index(){
+        try{
+            if(auth()->user()->role !== 'admin'){
+                return redirect()->route('home');
+            }
+            return Inertia::render('project_progress/ProjectProgressTable');
+        }catch(\Exception $e){
+            return redirect()->route('home')->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    public function create(){
+        try{
+            if(auth()->user()->role !== 'admin'){
+                return redirect()->route('home');
+            }
+            return Inertia::render('project_progress/CreateProjectProgress');
+        }catch(\Exception $e){
+            return redirect()->route('home')->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
     public function list(Request $request)
     {
         try {

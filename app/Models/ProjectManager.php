@@ -19,4 +19,12 @@ class ProjectManager extends Model
     public function manager(){
         return $this->belongsTo(Project::class, 'manager_id', 'manager_id');
     }
+
+    public function devTeam(){
+        return $this->hasMany(DevelopmentTeam::class, 'manager_id', 'manager_id');
+    }
+
+    public function testTeam(){
+        return $this->hasMany(TestingTeam::class, 'manager_id', 'manager_id');
+    }
 }

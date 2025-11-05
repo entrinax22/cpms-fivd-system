@@ -19,4 +19,9 @@ class DevelopmentTeam extends Model
     {
         return $this->belongsTo(ProjectManager::class, 'manager_id', 'manager_id');
     }
+
+    public function developmentTools()
+    {
+        return $this->hasMany(DevelopmentTool::class, 'team_id', 'team_id');
+    }
 }
