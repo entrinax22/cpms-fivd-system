@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TestingTeamController;
 use App\Http\Controllers\TestingToolController;
 use App\Http\Controllers\PasswordChangeController;
@@ -146,6 +147,8 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
     Route::get('/admin/project_progress/edit/{project_progress_id}', [ProjectProgressController::class, 'edit'])->name('admin.project_progress.edit');
     Route::post('/admin/project_progress/update/{project_progress_id}', [ProjectProgressController::class, 'update'])->name('admin.project_progress.update');
     Route::post('/admin/project_progress/delete/{project_progress_id}', [ProjectProgressController::class, 'destroy'])->name('admin.project_progress.destroy');
+
+    Route::get('/dashboard/data', [DashboardController::class, 'index'])->name('admin.dashboard.data');
 });
 
 Route::middleware('auth')->group(function () {
