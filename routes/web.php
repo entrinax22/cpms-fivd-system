@@ -18,6 +18,15 @@ Route::middleware(['auth', 'verified', 'must_change_password'])->group(function 
     Route::get('/', function () {
         return Inertia::render('Homepage');
     })->name('home');
+
+    Route::get('/projects', function () {
+        return Inertia::render('projects/ProjectsList');
+    })->name('projects.list');
+
+    Route::get('/projects/projectListManager', [ProjectController::class, 'projectListManager'])->name('projects.projectListManager');
+    Route::get('/projects/viewProjectDetails/{project_id}', [ProjectController::class, 'viewProjectDetails'])->name('projects.viewProjectDetails');
+    Route::get('/projects/getProjectProgress/{project_id}', [ProjectController::class, 'getProjectProgress'])->name('projects.getProjectProgress');
+    Route::post('/projects/addProgress', [ProjectController::class, 'addProgress'])->name('projects.addProgress');
 });
 
 Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () {
@@ -154,6 +163,8 @@ Route::middleware(['auth', 'admin', 'must_change_password'])->group(function () 
 Route::middleware('auth')->group(function () {
     Route::get('/change-password', [PasswordChangeController::class, 'show'])->name('password.change.form');
     Route::post('/change-password', [PasswordChangeController::class, 'update'])->name('password.change.update');
+
+    Route::get('/projects/calendar-data', [ProjectController::class, 'getCalendarData']);
 });
 
 require __DIR__.'/settings.php';

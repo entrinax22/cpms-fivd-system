@@ -97,14 +97,14 @@ const platforms = [
 
 // Tables links
 const tables = [
-    { icon: 'table_chart', label: 'Users Table', route: 'admin.users', component: 'users/UsersTable' },
-    { icon: 'table_chart', label: 'Clients Table', route: 'admin.clients', component: 'clients/ClientsTable' },
-    { icon: 'table_chart', label: 'Project Managers', route: 'admin.project-managers', component: 'project_managers/ProjectManagersTable' },
-    { icon: 'table_chart', label: 'Development Teams', route: 'admin.development-teams', component: 'development_teams/DevelopmentTeamsTable' },
-    { icon: 'table_chart', label: 'Development Tools', route: 'admin.development-tools', component: 'development_tools/DevelopmentToolsTable' },
-    { icon: 'table_chart', label: 'Testing Teams', route: 'admin.testing-teams', component: 'testing_teams/TestingTeamsTable' },
-    { icon: 'table_chart', label: 'Testing Tools', route: 'admin.testing-tools', component: 'testing_tools/TestingToolsTable' },
-    { icon: 'table_chart', label: 'Project Progress', route: 'admin.project_progress', component: 'project_progress/ProjectProgressTable' },
+    { icon: 'group', label: 'Users Table', route: 'admin.users', component: 'users/UsersTable' },
+    { icon: 'handshake', label: 'Clients Table', route: 'admin.clients', component: 'clients/ClientsTable' },
+    { icon: 'manage_accounts', label: 'Project Managers', route: 'admin.project-managers', component: 'project_managers/ProjectManagersTable' },
+    { icon: 'engineering', label: 'Development Teams', route: 'admin.development-teams', component: 'development_teams/DevelopmentTeamsTable' },
+    { icon: 'build_circle', label: 'Development Tools', route: 'admin.development-tools', component: 'development_tools/DevelopmentToolsTable' },
+    { icon: 'science', label: 'Testing Teams', route: 'admin.testing-teams', component: 'testing_teams/TestingTeamsTable' },
+    { icon: 'construction', label: 'Testing Tools', route: 'admin.testing-tools', component: 'testing_tools/TestingToolsTable' },
+    { icon: 'trending_up', label: 'Project Progress', route: 'admin.project_progress', component: 'project_progress/ProjectProgressTable' },
 ];
 
 const logout = () => {

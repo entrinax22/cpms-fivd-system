@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Models\ProjectManager;
+use App\Models\ProjectProgress;
 use App\Services\SemaphoreService;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
@@ -370,6 +373,219 @@ class ProjectController extends Controller
             return response()->json([
                 'result' => false,
                 'message' => 'Error retrieving project list: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getCalendarData()
+    {
+        try {
+            $projects = Project::with(['client', 'manager'])
+                ->orderByDesc('project_id')
+                ->get();
+
+            $data = $projects->map(function ($project) {
+                return [
+                    'id' => encrypt($project->project_id),
+                    'name' => $project->project_name,
+                    'client' => optional($project->client)->client_name,
+                    'manager' => optional($project->manager)->manager_name ?? 'Unassigned',
+                    'status' => ucfirst($project->status),
+                    'start_date' => $project->start_date,
+                    'end_date' => $project->estimated_end_date,
+                    'color' => match ($project->status) {
+                        'completed' => '#10b981',
+                        'in_progress' => '#3b82f6',
+                        'pending' => '#f59e0b',
+                        'delayed' => '#ef4444',
+                        default => '#9ca3af',
+                    },
+                ];
+            });
+
+            return response()->json([
+                'result' => true,
+                'data' => $data,
+                'message' => 'Projects retrieved successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'Error retrieving project list: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function projectListManager(){
+        try{
+            $user = Auth::user();
+            $projects = Project::with(['client', 'manager'])
+                ->whereHas('manager', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
+                ->orderByDesc('project_id')
+                ->get();
+
+
+            $data = $projects->map(function ($project) {
+                return [
+                    'id' => encrypt($project->project_id),
+                    'name' => $project->project_name,
+                    'client' => optional($project->client)->client_name,
+                    'manager' => optional($project->manager)->manager_name ?? 'Unassigned',
+                    'status' => ucfirst($project->status),
+                    'start_date' => $project->start_date,
+                    'end_date' => $project->estimated_end_date,
+                ];
+            });
+            return response()->json([
+                'result' => true,
+                'data' => $data,
+                'message' => 'Projects retrieved successfully.',
+            ]);
+        }catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'Error retrieving project list: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function viewProjectDetails($project_id){
+        try{
+            $projectId = decrypt($project_id);
+            $project = Project::with(['client', 'manager'])->findOrFail($projectId);
+
+            $data = [
+                'project_id'           => encrypt($project->project_id),
+                'project_name'         => $project->project_name,
+                'project_description'  => $project->project_description,
+                'status'               => $project->status,
+                'start_date'           => $project->start_date,
+                'estimated_end_date'   => $project->estimated_end_date,
+                'client_name'          => $project->client->client_name ?? null,
+                'manager_name'         => $project->manager->manager_name ?? null,
+            ];
+
+            return Inertia::render('projects/ProjectDetails', [
+                'data' => $data,
+            ]);
+        }catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'An error occurred while retrieving the project: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getProjectProgress($project_id){
+        try{
+            $projectId = decrypt($project_id);
+            $project = Project::with(['client', 'manager', 'project_progress'])->findOrFail($projectId);
+            $progress = $project->project_progress->map(function ($progress) {
+                return [
+                    'project_progress_id' => encrypt($progress->project_progress_id),
+                    'progress_date' => $progress->progress_date,
+                    'image_path' => $progress->image_path ? asset('storage/' . $progress->image_path): null,
+                    'file_path' => $progress->file_path ? asset('storage/' . $progress->file_path) : null,
+                    'progress_description' => $progress->progress_description,
+                ];
+            });
+
+            return response()->json([
+                'result' => true,
+                'data' => $progress,
+                'message' => 'Project progress retrieved successfully.',
+            ]);
+        }catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'An error occurred while retrieving the project progress: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function addProgress(Request $request){
+
+        $request->validate([
+            'project_id' => 'required|string',
+            'progress_date' => 'required|date',
+            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'file_path' => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
+            'progress_description' => 'required|string',
+        ]);
+
+        try {
+            $projectId = decrypt($request->input('project_id'));
+
+            $imagePath = null;
+            $filePath = null;
+
+            try {
+                if ($request->hasFile('file_path')) {
+                    $file = $request->file('file_path');
+                    $originalName = $file->getClientOriginalName();
+                    $fileName = time() . '_' . $originalName; 
+                    $filePath = $file->storeAs('project_files', $fileName, 'public');
+                }
+
+                if ($request->hasFile('image_path')) {
+                    $image = $request->file('image_path');
+                    $originalName = $image->getClientOriginalName();
+                    $imageName = time() . '_' . $originalName; 
+                    $imagePath = $image->storeAs('project_images', $imageName, 'public');
+                }
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'result' => false,
+                    'message' => 'File upload failed: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            $project_progress = ProjectProgress::create([
+                'project_id' => $projectId,
+                'progress_date' => $request->input('progress_date'),
+                'image_path' => $imagePath,
+                'file_path' => $filePath,
+                'progress_description' => $request->input('progress_description'),
+            ]);
+
+            $project = Project::with(['client', 'manager'])->find($projectId);
+            $responses = [];
+            $manager = $project->manager;
+            if ($manager?->contact_information) {
+                $managerMessage = sprintf(
+                    "New progress has been added to the project '%s' on %s.",
+                    $project->project_name,
+                    $project_progress->progress_date
+                );
+                $responses['manager'] = $this->semaphore->sendSMS($manager->contact_information, $managerMessage);
+            } else {
+                Log::warning("Project Manager with ID {$project->manager_id} not found or missing contact number. SMS not sent.");
+            }
+
+            $client = $project->client;
+            if ($client?->contact_information) {
+                $clientMessage = sprintf(
+                    "New progress has been added to your project '%s' on %s.",
+                    $project->project_name,
+                    $project_progress->progress_date
+                );
+                $responses['client'] = $this->semaphore->sendSMS($client->contact_information, $clientMessage);
+            } else {
+                Log::warning("Client with ID {$project->client_id} not found or missing contact number. SMS not sent.");
+            }
+
+            return response()->json([
+                'result' => true,
+                'message' => 'Project Progress added successfully.',
+                'responses' => $responses,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'Error adding project progress: ' . $e->getMessage(),
             ], 500);
         }
     }

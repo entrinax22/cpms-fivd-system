@@ -6,10 +6,18 @@ use Inertia\Inertia;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Models\ProjectProgress;
+use App\Services\SemaphoreService;
 use Illuminate\Support\Facades\Storage;
 
 class ProjectProgressController extends Controller
 {   
+
+    protected $semaphore;
+
+    public function __construct(SemaphoreService $semaphore)
+    {
+        $this->semaphore = $semaphore;
+    }
     public function index(){
         try{
             if(auth()->user()->role !== 'admin'){
@@ -129,9 +137,36 @@ class ProjectProgressController extends Controller
                 'progress_description' => $request->input('progress_description'),
             ]);
 
+            $project = Project::with(['client', 'manager'])->find($projectId);
+            $responses = [];
+            $manager = $project->manager;
+            if ($manager?->contact_information) {
+                $managerMessage = sprintf(
+                    "New progress has been added to the project '%s' on %s.",
+                    $project->project_name,
+                    $project_progress->progress_date
+                );
+                $responses['manager'] = $this->semaphore->sendSMS($manager->contact_information, $managerMessage);
+            } else {
+                Log::warning("Project Manager with ID {$project->manager_id} not found or missing contact number. SMS not sent.");
+            }
+
+            $client = $project->client;
+            if ($client?->contact_information) {
+                $clientMessage = sprintf(
+                    "New progress has been added to your project '%s' on %s.",
+                    $project->project_name,
+                    $project_progress->progress_date
+                );
+                $responses['client'] = $this->semaphore->sendSMS($client->contact_information, $clientMessage);
+            } else {
+                Log::warning("Client with ID {$project->client_id} not found or missing contact number. SMS not sent.");
+            }
+
             return response()->json([
                 'result' => true,
                 'message' => 'Project Progress created successfully.',
+                'responses' => $responses,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -251,9 +286,36 @@ class ProjectProgressController extends Controller
                 'file_path' => $filePath,
             ]);
 
+            $project = Project::with(['client', 'manager'])->find($projectId);
+            $responses = [];
+            $manager = $project->manager;
+            if ($manager?->contact_information) {
+                $managerMessage = sprintf(
+                    "A new progress update was added to the project '%s' on %s.",
+                    $project->project_name,
+                    $projectProgress->progress_date
+                );
+                $responses['manager'] = $this->semaphore->sendSMS($manager->contact_information, $managerMessage);
+            } else {
+                Log::warning("Project Manager with ID {$project->manager_id} not found or missing contact number. SMS not sent.");
+            }
+
+            $client = $project->client;
+            if ($client?->contact_information) {
+                $clientMessage = sprintf(
+                    "A new progress update has been added to your project '%s' on %s.",
+                    $project->project_name,
+                    $projectProgress->progress_date
+                );
+                $responses['client'] = $this->semaphore->sendSMS($client->contact_information, $clientMessage);
+            } else {
+                Log::warning("Client with ID {$project->client_id} not found or missing contact number. SMS not sent.");
+            }
+
             return response()->json([
                 'result' => true,
                 'message' => 'Project progress updated successfully.',
+                'responses' => $responses,
             ]);
         } catch (\Exception $e) {
             return response()->json([
