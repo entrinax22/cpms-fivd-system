@@ -24,4 +24,13 @@ class DevelopmentTeam extends Model
     {
         return $this->hasMany(DevelopmentTool::class, 'team_id', 'team_id');
     }
+
+    /**
+     * Users that belong to this development team.
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'development_team_user', 'team_id', 'user_id')
+                    ->withTimestamps();
+    }
 }

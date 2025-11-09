@@ -8,6 +8,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TestingTeamController;
 use App\Http\Controllers\TestingToolController;
+use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\ProjectManagerController;
 use App\Http\Controllers\DevelopmentTeamController;
@@ -165,7 +166,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/change-password', [PasswordChangeController::class, 'update'])->name('password.change.update');
 
     Route::get('/projects/calendar-data', [ProjectController::class, 'getCalendarData']);
+
+    Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.api.update');
 });
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
+Route::post('/forgot-password/send-otp', [ForgotPasswordController::class, 'sendOtp']);
+Route::post('/forgot-password/verify-otp', [ForgotPasswordController::class, 'verifyOtp']);

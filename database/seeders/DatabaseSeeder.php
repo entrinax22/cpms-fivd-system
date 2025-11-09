@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'), // Ensure to hash the password
+            'phone' => '09517995409',
             'role' => 'admin',
             'must_change_password' => false,
         ]);

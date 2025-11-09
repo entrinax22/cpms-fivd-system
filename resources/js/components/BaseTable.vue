@@ -15,7 +15,8 @@
                     <td class="px-4 py-2 text-center text-gray-600">{{ (currentPage - 1) * perPage + index + 1 }}</td>
                     <td v-for="col in columns" :key="col.key" class="px-4 py-2 text-sm text-gray-700">
                         <slot :name="col.key" :row="row" :value="row[col.key]">
-                            {{ row[col.key] }}
+                            <span v-if="col.template" v-html="col.template(row)"></span>
+                            <template v-else>{{ row[col.key] }}</template>
                         </slot>
                     </td>
                     <td class="px-4 py-2 text-center">

@@ -170,7 +170,6 @@ class ProjectController extends Controller
             return response()->json([
                 'result' => true,
                 'message' => 'Project created successfully.',
-                'responses' => $responses,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -580,7 +579,6 @@ class ProjectController extends Controller
             return response()->json([
                 'result' => true,
                 'message' => 'Project Progress added successfully.',
-                'responses' => $responses,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([

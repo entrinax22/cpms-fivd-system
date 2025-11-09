@@ -8,16 +8,22 @@ use App\Models\DevelopmentTeam;
 
 class DevelopmentTeamController extends Controller
 {
+    protected $encryptionService;
+
+    public function __construct(\App\Services\EncryptionService $encryptionService)
+    {
+        $this->encryptionService = $encryptionService;
+    }
     public function store(Request $request){
         try{
             $validated = $request->validate([
-                'team_name'      => 'required|string|max:255',
+                'team_name'      => 'required|string|max:255|unique:development_teams,team_name',
                 'team_size'      => 'required|integer|min:1',
                 'specialization' => 'nullable|string|max:255',
                 'manager_id'     => 'required|string', 
             ]);
             
-            $validated['manager_id'] = decrypt($validated['manager_id']);
+            $validated['manager_id'] = $this->encryptionService->decryptManagerId($validated['manager_id']);
 
             $team = DevelopmentTeam::create($validated);
 
@@ -26,11 +32,16 @@ class DevelopmentTeamController extends Controller
                 'message' => 'Development team created successfully.',
                 'data'    => $team
             ], 201);
-        }catch(\Exception $e){
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'result' => false,
-                'message' => ' ' . $e->getMessage(),
-            ]);
+                'errors' => $e->errors(),
+            ], 422);
+        } catch(\Exception $e){
+            return response()->json([
+                'result' => false,
+                'message' => 'An error occurred while creating the development team: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -202,10 +213,13 @@ class DevelopmentTeamController extends Controller
                 ->get();
 
             $data = $devTeams->map(function ($devTeam) {
+                $currentMembers = $devTeam->users()->count();
                 return [
-                    'team_id' => encrypt($devTeam->team_id),
+                    'team_id' => $this->encryptionService->getEncryptedDevelopmentTeamId($devTeam->team_id),
                     'team_name' => $devTeam->team_name,
                     'specialization' => $devTeam->specialization,
+                    'team_size' => $devTeam->team_size,
+                    'current_members' => $currentMembers,
                     'manager' => $devTeam->projectManager ? [
                         'manager_id' => encrypt($devTeam->projectManager->manager_id),
                         'manager_name' => $devTeam->projectManager->manager_name,

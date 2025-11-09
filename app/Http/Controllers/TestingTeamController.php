@@ -8,26 +8,37 @@ use App\Models\ProjectManager;
 
 class TestingTeamController extends Controller
 {
+    protected $encryptionService;
+
+    public function __construct(\App\Services\EncryptionService $encryptionService)
+    {
+        $this->encryptionService = $encryptionService;
+    }
     public function store(Request $request){
         try{
             $validated = $request->validate([
-                'team_name' => 'required|string|max:255',
+                'team_name' => 'required|string|max:255|unique:testing_teams,team_name',
                 'team_size' => 'required|integer|min:1',
                 'specialization' => 'required|string|max:255',
                 'manager_id' => 'required|string',
             ]);
-            $validated['manager_id'] = decrypt($validated['manager_id']);
-            $tool = TestingTeam::create($validated);
+            $validated['manager_id'] = $this->encryptionService->decryptManagerId($validated['manager_id']);
+            $team = TestingTeam::create($validated);
 
             return response()->json([
                 'result'  => true,
                 'message' => 'Testing Team created successfully.',
             ], 201);
-        }catch(\Exception $e){
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'result' => false,
-                'message' => ' ' . $e->getMessage(),
-            ]);
+                'errors' => $e->errors(),
+            ], 422);
+        } catch(\Exception $e){
+            return response()->json([
+                'result' => false,
+                'message' => 'An error occurred while creating the testing team: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -49,13 +60,13 @@ class TestingTeamController extends Controller
 
             $data = $teams->getCollection()->map(function ($team) {
                 return [
-                    'testing_team_id' => encrypt($team->testing_team_id),
+                    'testing_team_id' => $this->encryptionService->getEncryptedTestingTeamId($team->testing_team_id),
                     'team_name' => $team->team_name,
                     'team_size' => $team->team_size,
                     'specialization' => $team->specialization,
-                    'manager_id' => encrypt($team->manager_id),
+                    'manager_id' => $this->encryptionService->getEncryptedManagerId($team->manager_id),
                     'manager' => $team->projectManager ? [
-                        'manager_id' => encrypt($team->projectManager->manager_id),
+                        'manager_id' => $this->encryptionService->getEncryptedManagerId($team->projectManager->manager_id),
                         'manager_name' => $team->projectManager->manager_name,
                         'expertise_area' => $team->projectManager->expertise_area,
                         'contact_information' => $team->projectManager->contact_information,
@@ -86,17 +97,13 @@ class TestingTeamController extends Controller
     public function edit($testing_team_id)
     {
         try {
-            $testing_team_id = decrypt($testing_team_id);
+            $testing_team_id = $this->encryptionService->decryptTestingTeamId($testing_team_id);
             // Use the correct primary key for lookup
             $team = TestingTeam::where('testing_team_id', $testing_team_id)->firstOrFail();
 
-            $encryptedManagerIds = ProjectManager::pluck('manager_id')->mapWithKeys(function ($id) {
-                return [$id => encrypt($id)];
-            });
-
-            $managers = ProjectManager::orderByDesc('manager_id')->get()->map(function ($manager) use ($encryptedManagerIds) {
+            $managers = ProjectManager::orderByDesc('manager_id')->get()->map(function ($manager) {
                 return [
-                    'manager_id' => $encryptedManagerIds[$manager->manager_id],
+                    'manager_id' => $this->encryptionService->getEncryptedManagerId($manager->manager_id),
                     'manager_name' => $manager->manager_name,
                     'expertise_area' => $manager->expertise_area,
                     'contact_information' => $manager->contact_information,
@@ -107,11 +114,11 @@ class TestingTeamController extends Controller
                 'result' => true,
                 'data' => [
                     'team' => [
-                        'testing_team_id' => encrypt($team->testing_team_id),
+                        'testing_team_id' => $this->encryptionService->getEncryptedTestingTeamId($team->testing_team_id),
                         'team_name' => $team->team_name,
                         'team_size' => $team->team_size,
                         'specialization' => $team->specialization,
-                        'manager_id' => $encryptedManagerIds[$team->manager_id],
+                        'manager_id' => $this->encryptionService->getEncryptedManagerId($team->manager_id),
                     ],
                     'managers' => $managers
                 ],
@@ -136,8 +143,8 @@ class TestingTeamController extends Controller
         ]);
 
         try {
-            $testing_team_id = decrypt($testing_team_id);
-            $manager_id = decrypt($request->input('manager_id'));
+            $testing_team_id = $this->encryptionService->decryptTestingTeamId($testing_team_id);
+            $manager_id = $this->encryptionService->decryptManagerId($request->input('manager_id'));
 
             $team = TestingTeam::findOrFail($testing_team_id);
             $team->team_name = $request->input('team_name');
@@ -161,7 +168,7 @@ class TestingTeamController extends Controller
     public function destroy($testing_team_id)
     {
         try {
-            $testing_team_id = decrypt($testing_team_id);
+            $testing_team_id = $this->encryptionService->decryptTestingTeamId($testing_team_id);
             $team = TestingTeam::findOrFail($testing_team_id);
             $team->delete();
 
@@ -195,13 +202,15 @@ class TestingTeamController extends Controller
             $testingTeam = $query->get();
 
             $data = $testingTeam->map(function ($testTeam) {
+                $currentMembers = $testTeam->users()->count();
                 return [
-                    'testing_team_id' => encrypt($testTeam->testing_team_id),
+                    'testing_team_id' => $this->encryptionService->getEncryptedTestingTeamId($testTeam->testing_team_id),
                     'team_name' => $testTeam->team_name,
                     'team_size' => $testTeam->team_size,
+                    'current_members' => $currentMembers,
                     'specialization' => $testTeam->specialization,
                     'manager' => $testTeam->projectManager ? [
-                        'manager_id' => encrypt($testTeam->projectManager->manager_id),
+                        'manager_id' => $this->encryptionService->getEncryptedManagerId($testTeam->projectManager->manager_id),
                         'manager_name' => $testTeam->projectManager->manager_name,
                         'expertise_area' => $testTeam->projectManager->expertise_area,
                         'contact_information' => $testTeam->projectManager->contact_information,

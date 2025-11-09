@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
         'role',
         'must_change_password',
@@ -54,5 +55,23 @@ class User extends Authenticatable
     public function requestedTools()
     {
         return $this->hasMany(RequestedTool::class, 'user_id');
+    }
+
+    /**
+     * The development teams the user belongs to.
+     */
+    public function developmentTeams()
+    {
+        return $this->belongsToMany(DevelopmentTeam::class, 'development_team_user', 'user_id', 'team_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * The testing teams the user belongs to.
+     */
+    public function testingTeams()
+    {
+        return $this->belongsToMany(TestingTeam::class, 'testing_team_user', 'user_id', 'testing_team_id')
+                    ->withTimestamps();
     }
 }

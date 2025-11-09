@@ -19,4 +19,13 @@ class TestingTeam extends Model
     {
         return $this->belongsTo(ProjectManager::class, 'manager_id', 'manager_id');
     }
+
+    /**
+     * Users that belong to this testing team.
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'testing_team_user', 'testing_team_id', 'user_id')
+                    ->withTimestamps();
+    }
 }

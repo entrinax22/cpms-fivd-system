@@ -2,58 +2,70 @@
     <Head title="Admin Dashboard" />
 
     <AdminLayout>
-        <div class="p-6 bg-gray-50 min-h-screen">
+        <div class="min-h-screen bg-gray-50 p-6">
             <!-- Dashboard Header -->
             <div class="mb-6 flex items-center justify-between">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-800">Create User</h1>
-                    <p class="text-gray-500 mt-1">Fill out the form below to add a new user.</p>
+                    <p class="mt-1 text-gray-500">Fill out the form below to add a new user.</p>
                 </div>
                 <!-- Back Button -->
-                <button 
-                    @click="goBack" 
-                    class="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg shadow-sm hover:bg-gray-200 transition"
+                <button
+                    @click="goBack"
+                    class="flex items-center rounded-lg bg-gray-100 px-4 py-2 text-gray-700 shadow-sm transition hover:bg-gray-200"
                 >
                     <span class="mr-2">←</span> Back
                 </button>
             </div>
 
             <!-- User Creation Form -->
-            <div class="bg-white shadow-lg rounded-xl p-8 border border-gray-100">
+            <div class="rounded-xl border border-gray-100 bg-white p-8 shadow-lg">
                 <form @submit.prevent="submit" class="space-y-6">
                     <!-- Grid Inputs -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <!-- Name -->
                         <div>
-                            <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Name</label>
-                            <input 
-                                v-model="newUser.name" 
-                                type="text" 
-                                id="name" 
+                            <label for="name" class="mb-1 block text-sm font-semibold text-gray-700">Name</label>
+                            <input
+                                v-model="newUser.name"
+                                type="text"
+                                id="name"
                                 placeholder="Enter full name"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
                         </div>
                         <!-- Email -->
                         <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-                            <input 
-                                v-model="newUser.email" 
-                                type="email" 
-                                id="email" 
+                            <label for="email" class="mb-1 block text-sm font-semibold text-gray-700">Email</label>
+                            <input
+                                v-model="newUser.email"
+                                type="email"
+                                id="email"
                                 placeholder="email@example.com"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+                        <!--Phone-->
+                        <div>
+                            <label for="phone" class="mb-1 block text-sm font-semibold text-gray-700">Phone</label>
+                            <input
+                                v-model="newUser.phone"
+                                type="text"
+                                id="phone"
+                                placeholder="Enter phone number"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
                         </div>
                         <!-- Role -->
                         <div>
-                            <label for="role" class="block text-sm font-semibold text-gray-700 mb-1">Role</label>
-                            <select 
-                                v-model="newUser.role" 
-                                id="role" 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                            <label for="role" class="mb-1 block text-sm font-semibold text-gray-700">Role</label>
+                            <select
+                                v-model="newUser.role"
+                                id="role"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                                 <option value="" disabled>Select role</option>
@@ -63,13 +75,44 @@
                                 <option value="engineer">Engineer</option>
                             </select>
                         </div>
+                        <!-- Development Teams -->
+                        <div>
+                            <label for="development_teams" class="mb-1 block text-sm font-semibold text-gray-700">Development Teams</label>
+                            <Multiselect
+                                v-model="selectedDevTeams"
+                                :options="devTeams"
+                                label="team_name"
+                                track-by="team_id"
+                                :multiple="true"
+                                :searchable="true"
+                                placeholder="Search and select development teams"
+                                class="w-full"
+                            />
+                            <p class="mt-1 text-xs text-gray-400">(Use the dropdown to search & select multiple)</p>
+                        </div>
+
+                        <!-- Testing Teams -->
+                        <div>
+                            <label for="testing_teams" class="mb-1 block text-sm font-semibold text-gray-700">Testing Teams</label>
+                            <Multiselect
+                                v-model="selectedTestTeams"
+                                :options="testTeams"
+                                label="team_name"
+                                track-by="testing_team_id"
+                                :multiple="true"
+                                :searchable="true"
+                                placeholder="Search and select testing teams"
+                                class="w-full"
+                            />
+                            <p class="mt-1 text-xs text-gray-400">(Use the dropdown to search & select multiple)</p>
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
                     <div class="flex justify-end">
-                        <button 
-                            type="submit" 
-                            class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition"
+                        <button
+                            type="submit"
+                            class="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
                         >
                             Submit
                         </button>
@@ -81,16 +124,52 @@
 </template>
 
 <script setup>
-import { Head, router } from "@inertiajs/vue3";
-import AdminLayout from "@/layouts/AdminLayout.vue";
-import { ref } from "vue";
-import axios from "axios";
-import { toast } from "@/stores/ToastStore";
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import { toast } from '@/stores/ToastStore';
+import { Head } from '@inertiajs/vue3';
+import axios from 'axios';
+import { ref, watch } from 'vue';
+
+// vue-multiselect
+import Multiselect from 'vue-multiselect';
+import 'vue-multiselect/dist/vue-multiselect.min.css';
 
 const newUser = ref({
-    name: "",
-    email: "",
-    role: ""
+    name: '',
+    email: '',
+    role: '',
+    phone: '',
+    development_team_ids: [],
+    testing_team_ids: [],
+});
+
+const devTeams = ref([]);
+const testTeams = ref([]);
+const selectedDevTeams = ref([]);
+const selectedTestTeams = ref([]);
+
+const fetchTeamLists = async () => {
+    try {
+        const [devResp, testResp] = await Promise.all([
+            axios.get(route('admin.development-teams.selectList')),
+            axios.get(route('admin.testing-teams.selectList')),
+        ]);
+        if (devResp.data.result === true) devTeams.value = devResp.data.data;
+        if (testResp.data.result === true) testTeams.value = testResp.data.data;
+    } catch (e) {
+        console.error('Error fetching team lists', e);
+    }
+};
+
+fetchTeamLists();
+
+// sync selected objects into encrypted id arrays for backend
+watch(selectedDevTeams, (val) => {
+    newUser.value.development_team_ids = val && val.length ? val.map((v) => v.team_id) : [];
+});
+
+watch(selectedTestTeams, (val) => {
+    newUser.value.testing_team_ids = val && val.length ? val.map((v) => v.testing_team_id) : [];
 });
 
 const submit = async () => {
@@ -100,9 +179,12 @@ const submit = async () => {
         if (response.data.result === true) {
             console.log(response.data.message);
             newUser.value = {
-                name: "",
-                email: "",
-                role: ""
+                name: '',
+                email: '',
+                phone: '',
+                role: '',
+                development_team_ids: [],
+                testing_team_ids: [],
             };
             toast.show('User added successfully!', 'success');
         } else {
