@@ -34,6 +34,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.tool_name" class="mt-1 text-sm text-red-600">{{ errors.tool_name[0] }}</p>
                         </div>
 
                         <!-- Tool Version -->
@@ -47,6 +48,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.tool_version" class="mt-1 text-sm text-red-600">{{ errors.tool_version[0] }}</p>
                         </div>
 
                         <!-- License Expiry Date -->
@@ -59,6 +61,7 @@
                                 placeholder="Select license expiry date"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                             />
+                            <p v-if="errors.license_expiry_date" class="mt-1 text-sm text-red-600">{{ errors.license_expiry_date[0] }}</p>
                         </div>
 
                         <!-- Assign Manager (Searchable) -->
@@ -77,6 +80,7 @@
                             >
                                 <template #option="{ option }"> {{ option.team_name }} - {{ option.manager.manager_name }} </template>
                             </Multiselect>
+                            <p v-if="errors.team_id" class="mt-1 text-sm text-red-600">{{ errors.team_id[0] }}</p>
                         </div>
                     </div>
 
@@ -94,7 +98,6 @@
         </div>
     </AdminLayout>
 </template>
-
 <script setup>
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { toast } from '@/stores/ToastStore';
@@ -110,7 +113,7 @@ const newTool = ref({
     team_id: '',
     license_expiry_date: '',
 });
-
+const errors = ref({});
 const development_teams = ref([]);
 const selectedTeam = ref(null);
 
@@ -121,7 +124,7 @@ const fetchTeams = async (search = '') => {
         });
         development_teams.value = response.data.data;
     } catch (error) {
-        console.error('Error fetching managers:', error);
+        console.error('Error fetching teams:', error);
     }
 };
 
@@ -129,28 +132,44 @@ onMounted(() => {
     fetchTeams();
 });
 
-// keep manager_id synced with selected manager
+// keep team_id synced with selected team
 watch(selectedTeam, (val) => {
     newTool.value.team_id = val ? val.team_id : '';
 });
 
 const submit = async () => {
     const route_url = route('admin.development-tools.store');
+    errors.value = {}; // reset old errors
+
     try {
         const response = await axios.post(route_url, newTool.value);
+
         if (response.data.result === true) {
-            console.log(response.data.message);
+            toast.show('Development Tool added successfully!', 'success');
+
+            // Reset form
             newTool.value = {
                 tool_name: '',
                 tool_version: '',
                 license_expiry_date: '',
+                team_id: '',
             };
-            toast.show('Development Tool added successfully!', 'success');
+            selectedTeam.value = null;
         } else {
-            toast.show('Development Tool adding error!', 'error');
+            // If result is false but has message
+            toast.show(response.data.message || 'Error adding development tool.', 'error');
         }
     } catch (error) {
-        console.log(error);
+        if (error.response && error.response.status === 422) {
+            // Laravel validation error format
+            errors.value = error.response.data.errors || {};
+        } else if (error.response && error.response.data?.message) {
+            // Catch generic backend message
+            toast.show(error.response.data.message, 'error');
+        } else {
+            console.error(error);
+            toast.show('An unexpected error occurred.', 'error');
+        }
     }
 };
 

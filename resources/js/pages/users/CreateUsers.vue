@@ -34,6 +34,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name[0] }}</p>
                         </div>
                         <!-- Email -->
                         <div>
@@ -46,6 +47,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email[0] }}</p>
                         </div>
                         <!--Phone-->
                         <div>
@@ -58,6 +60,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.phone" class="mt-1 text-sm text-red-600">{{ errors.phone[0] }}</p>
                         </div>
                         <!-- Role -->
                         <div>
@@ -74,6 +77,7 @@
                                 <option value="manager">Manager</option>
                                 <option value="engineer">Engineer</option>
                             </select>
+                            <p v-if="errors.role" class="mt-1 text-sm text-red-600">{{ errors.role[0] }}</p>
                         </div>
                         <!-- Development Teams -->
                         <div>
@@ -89,6 +93,9 @@
                                 class="w-full"
                             />
                             <p class="mt-1 text-xs text-gray-400">(Use the dropdown to search & select multiple)</p>
+                            <p v-if="errors.development_team_ids" class="mt-1 text-sm text-red-600">
+                                {{ errors.development_team_ids[0] }}
+                            </p>
                         </div>
 
                         <!-- Testing Teams -->
@@ -105,6 +112,9 @@
                                 class="w-full"
                             />
                             <p class="mt-1 text-xs text-gray-400">(Use the dropdown to search & select multiple)</p>
+                            <p v-if="errors.testing_team_ids" class="mt-1 text-sm text-red-600">
+                                {{ errors.testing_team_ids[0] }}
+                            </p>
                         </div>
                     </div>
 
@@ -142,7 +152,7 @@ const newUser = ref({
     development_team_ids: [],
     testing_team_ids: [],
 });
-
+const errors = ref({});
 const devTeams = ref([]);
 const testTeams = ref([]);
 const selectedDevTeams = ref([]);
@@ -191,7 +201,12 @@ const submit = async () => {
             toast.show('User adding error!', 'error');
         }
     } catch (error) {
-        console.log(error);
+        if (error.response && error.response.status === 422) {
+            errors.value = error.response.data.errors || {};
+        } else {
+            console.error(error);
+            toast.show('An unexpected error occurred.', 'error');
+        }
     }
 };
 

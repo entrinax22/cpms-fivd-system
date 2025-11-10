@@ -33,6 +33,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.project_name" class="mt-1 text-sm text-red-600">{{ errors.project_name[0] }}</p>
                         </div>
 
                         <!-- Client -->
@@ -53,6 +54,7 @@
                                     {{ option.client_name }}
                                 </template>
                             </Multiselect>
+                            <p v-if="errors.client_id" class="mt-1 text-sm text-red-600">{{ errors.client_id[0] }}</p>
                         </div>
 
                         <!-- Manager -->
@@ -71,6 +73,7 @@
                             >
                                 <template #option="{ option }"> {{ option.manager_name }} - {{ option.expertise_area }} </template>
                             </Multiselect>
+                            <p v-if="errors.manager_id" class="mt-1 text-sm text-red-600">{{ errors.manager_id[0] }}</p>
                         </div>
 
                         <!-- Start Date -->
@@ -83,6 +86,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.start_date" class="mt-1 text-sm text-red-600">{{ errors.start_date[0] }}</p>
                         </div>
 
                         <!-- Estimated End Date -->
@@ -94,6 +98,7 @@
                                 id="estimated_end_date"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                             />
+                            <p v-if="errors.estimated_end_date" class="mt-1 text-sm text-red-600">{{ errors.estimated_end_date[0] }}</p>
                         </div>
 
                         <!-- Status -->
@@ -112,6 +117,7 @@
                                 <option value="on_hold">On Hold</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
+                            <p v-if="errors.status" class="mt-1 text-sm text-red-600">{{ errors.status[0] }}</p>
                         </div>
                     </div>
 
@@ -125,6 +131,7 @@
                             placeholder="Enter project details..."
                             class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                         ></textarea>
+                        <p v-if="errors.project_description" class="mt-1 text-sm text-red-600">{{ errors.project_description[0] }}</p>
                     </div>
 
                     <!-- Submit Button -->
@@ -160,7 +167,7 @@ const project = ref({
     project_description: '',
     status: '',
 });
-
+const errors = ref({});
 // dropdown data
 const clients = ref([]);
 const managers = ref([]);
@@ -226,8 +233,12 @@ const submit = async () => {
             toast.show(response.data.message || 'Failed to create project', 'error');
         }
     } catch (error) {
-        console.error(error);
-        toast.show('Error occurred while creating project', 'error');
+        if (error.response && error.response.status === 422) {
+            errors.value = error.response.data.errors || {};
+        } else {
+            console.error(error);
+            toast.show('An unexpected error occurred.', 'error');
+        }
     }
 };
 

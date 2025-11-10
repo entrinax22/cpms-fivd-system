@@ -39,6 +39,7 @@
                                 <template #option="{ option }"> {{ option.project_name }} — Client: {{ option.client_name }} </template>
                                 <template #singleLabel="{ option }"> {{ option.project_name }} — Client: {{ option.client_name }} </template>
                             </Multiselect>
+                            <p v-if="errors.project_id" class="mt-1 text-sm text-red-600">{{ errors.project_id[0] }}</p>
                         </div>
 
                         <!-- Progress Date -->
@@ -53,6 +54,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.progress_date" class="mt-1 text-sm text-red-600">{{ errors.progress_date[0] }}</p>
                         </div>
 
                         <!-- Progress Description -->
@@ -68,6 +70,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             ></textarea>
+                            <p v-if="errors.progress_description" class="mt-1 text-sm text-red-600">{{ errors.progress_description[0] }}</p>
                         </div>
 
                         <!-- Image Upload -->
@@ -86,6 +89,7 @@
                                 <span class="text-xs text-gray-500">Accepted types: JPG, PNG, GIF</span>
                                 <input type="file" @change="handleImageUpload" accept="image/*" class="hidden" />
                             </label>
+                            <p v-if="errors.image_path" class="mt-1 text-sm text-red-600">{{ errors.image_path[0] }}</p>
                         </div>
 
                         <!-- File Upload -->
@@ -107,6 +111,7 @@
                                 <span class="text-xs text-gray-500">Accepted types: PDF, DOCX</span>
                                 <input type="file" @change="handleFileUpload" accept=".pdf,.doc,.docx" class="hidden" />
                             </label>
+                            <p v-if="errors.file_path" class="mt-1 text-sm text-red-600">{{ errors.file_path[0] }}</p>
                         </div>
                     </div>
 
@@ -141,7 +146,7 @@ const newProjectProgress = ref({
     file_path: null,
     status: '',
 });
-
+const errors = ref({});
 const projects = ref([]);
 const selectedProject = ref(null);
 
@@ -221,7 +226,12 @@ const submit = async () => {
             toast.show('Error adding project progress!', 'error');
         }
     } catch (error) {
-        console.error(error);
+        if (error.response && error.response.status === 422) {
+            errors.value = error.response.data.errors || {};
+        } else {
+            console.error(error);
+            toast.show('An unexpected error occurred.', 'error');
+        }
     }
 };
 

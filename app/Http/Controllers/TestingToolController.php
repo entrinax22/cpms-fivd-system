@@ -26,7 +26,13 @@ class TestingToolController extends Controller
             return response()->json([
                 'result' => false,
                 'message' => ' ' . $e->getMessage(),
-            ]);
+                'errors' => $e->errors()
+            ],422);
+        }catch(\Exception $e){
+            return response()->json([
+                'result' => false,
+                'message' => ' ' . $e->getMessage(),
+            ],500);
         }
     }
 

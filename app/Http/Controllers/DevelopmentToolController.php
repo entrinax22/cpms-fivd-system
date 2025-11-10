@@ -31,9 +31,14 @@ class DevelopmentToolController extends Controller
             ], 201);
         }catch(\Exception $e){
             return response()->json([
+                'message' => 'Unexpected error!',
+                'errors' => $e->errors(),
+            ], 422);
+        }catch (\Exception $e) {
+            return response()->json([
                 'result' => false,
-                'message' => ' ' . $e->getMessage(),
-            ]);
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 

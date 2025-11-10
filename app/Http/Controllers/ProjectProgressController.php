@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\ProjectProgress;
 use App\Services\SemaphoreService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class ProjectProgressController extends Controller
 {   
@@ -93,81 +95,90 @@ class ProjectProgressController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'project_id' => 'required|string',
-            'progress_date' => 'required|date',
-            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
-            'file_path' => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
-            'progress_description' => 'required|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'project_id' => 'required|string',
+                'progress_date' => 'required|date',
+                'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'file_path' => 'nullable|file|mimes:pdf,doc,docx,zip|max:20480',
+                'progress_description' => 'required|string',
+            ]);
 
-       try {
-            $projectId = decrypt($request->input('project_id'));
-
+            try {
+                $projectId = decrypt($validated['project_id']);
+            } catch (DecryptException $e) {
+                return response()->json([
+                    'result' => false,
+                    'message' => 'Invalid project ID provided.',
+                    'errors' => ['project_id' => ['The project ID is invalid.']],
+                ], 422);
+            }
+            
             $imagePath = null;
             $filePath = null;
 
-            try {
-                if ($request->hasFile('file_path')) {
-                    $file = $request->file('file_path');
-                    $originalName = $file->getClientOriginalName();
-                    $fileName = time() . '_' . $originalName; 
-                    $filePath = $file->storeAs('project_files', $fileName, 'public');
-                }
+            // Handle file uploads
+            if ($request->hasFile('file_path')) {
+                $file = $request->file('file_path');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('project_files', $fileName, 'public');
+            }
 
-                if ($request->hasFile('image_path')) {
-                    $image = $request->file('image_path');
-                    $originalName = $image->getClientOriginalName();
-                    $imageName = time() . '_' . $originalName; 
-                    $imagePath = $image->storeAs('project_images', $imageName, 'public');
-                }
-
-            } catch (\Exception $e) {
-                return response()->json([
-                    'result' => false,
-                    'message' => 'File upload failed: ' . $e->getMessage(),
-                ], 500);
+            if ($request->hasFile('image_path')) {
+                $image = $request->file('image_path');
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $imagePath = $image->storeAs('project_images', $imageName, 'public');
             }
 
             $project_progress = ProjectProgress::create([
                 'project_id' => $projectId,
-                'progress_date' => $request->input('progress_date'),
+                'progress_date' => $validated['progress_date'],
                 'image_path' => $imagePath,
                 'file_path' => $filePath,
-                'progress_description' => $request->input('progress_description'),
+                'progress_description' => $validated['progress_description'],
             ]);
 
+            // SMS notifications
             $project = Project::with(['client', 'manager'])->find($projectId);
             $responses = [];
-            $manager = $project->manager;
-            if ($manager?->contact_information) {
+
+            if ($project?->manager?->contact_information) {
                 $managerMessage = sprintf(
                     "New progress has been added to the project '%s' on %s.",
                     $project->project_name,
                     $project_progress->progress_date
                 );
-                $responses['manager'] = $this->semaphore->sendSMS($manager->contact_information, $managerMessage);
-            } else {
-                Log::warning("Project Manager with ID {$project->manager_id} not found or missing contact number. SMS not sent.");
+                $responses['manager'] = $this->semaphore->sendSMS(
+                    $project->manager->contact_information,
+                    $managerMessage
+                );
             }
 
-            $client = $project->client;
-            if ($client?->contact_information) {
+            if ($project?->client?->contact_information) {
                 $clientMessage = sprintf(
                     "New progress has been added to your project '%s' on %s.",
                     $project->project_name,
                     $project_progress->progress_date
                 );
-                $responses['client'] = $this->semaphore->sendSMS($client->contact_information, $clientMessage);
-            } else {
-                Log::warning("Client with ID {$project->client_id} not found or missing contact number. SMS not sent.");
+                $responses['client'] = $this->semaphore->sendSMS(
+                    $project->client->contact_information,
+                    $clientMessage
+                );
             }
 
             return response()->json([
                 'result' => true,
-                'message' => 'Project Progress created successfully.',
+                'message' => 'Project progress created successfully.',
                 'responses' => $responses,
             ], 201);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'result' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+
         } catch (\Exception $e) {
             return response()->json([
                 'result' => false,

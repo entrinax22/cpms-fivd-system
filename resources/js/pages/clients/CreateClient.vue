@@ -34,6 +34,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.client_name" class="mt-1 text-sm text-red-600">{{ errors.client_name[0] }}</p>
                         </div>
 
                         <!-- Contact Information -->
@@ -47,11 +48,12 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.contact_information" class="mt-1 text-sm text-red-600">{{ errors.contact_information[0] }}</p>
                         </div>
 
                         <!--Client Type-->
                         <div>
-                            <label for="client_type" class="mb-1 block text-sm font-semibold text-gray-700">Contact Type</label>
+                            <label for="client_type" class="mb-1 block text-sm font-semibold text-gray-700">Client Type</label>
                             <input
                                 v-model="newClient.client_type"
                                 type="text"
@@ -60,6 +62,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.client_type" class="mt-1 text-sm text-red-600">{{ errors.client_type[0] }}</p>
                         </div>
 
                         <!-- Registration Date -->
@@ -72,6 +75,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.registration_date" class="mt-1 text-sm text-red-600">{{ errors.registration_date[0] }}</p>
                         </div>
                     </div>
 
@@ -106,7 +110,7 @@ const newClient = ref({
     registration_date: '',
     client_type: '',
 });
-
+const errors = ref({});
 const submit = async () => {
     const route_url = route('admin.clients.store');
     try {
@@ -125,7 +129,12 @@ const submit = async () => {
             toast.show('Client adding error!', 'error');
         }
     } catch (error) {
-        console.log(error);
+        if (error.response && error.response.status === 422) {
+            errors.value = error.response.data.errors || {};
+        } else {
+            console.error(error);
+            toast.show('An unexpected error occurred.', 'error');
+        }
     }
 };
 

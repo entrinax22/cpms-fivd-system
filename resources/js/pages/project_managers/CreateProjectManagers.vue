@@ -34,6 +34,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.expertise_area" class="mt-1 text-sm text-red-600">{{ errors.expertise_area[0] }}</p>
                         </div>
 
                         <!-- Contact Information -->
@@ -47,6 +48,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.contact_information" class="mt-1 text-sm text-red-600">{{ errors.contact_information[0] }}</p>
                         </div>
 
                         <!-- Years of Experience -->
@@ -61,6 +63,7 @@
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2 shadow-sm transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                                 required
                             />
+                            <p v-if="errors.years_of_experience" class="mt-1 text-sm text-red-600">{{ errors.years_of_experience[0] }}</p>
                         </div>
 
                         <!-- Related User -->
@@ -80,6 +83,7 @@
                                 <template #option="{ option }"> {{ option.name }} - {{ option.role ? option.role.toUpperCase() : '' }} </template>
                                 <template #singleLabel="{ option }"> {{ option.name }} - {{ option.role ? option.role.toUpperCase() : '' }}</template>
                             </Multiselect>
+                            <p v-if="errors.user_id" class="mt-1 text-sm text-red-600">{{ errors.user_id[0] }}</p>
                         </div>
                     </div>
 
@@ -116,7 +120,7 @@ const newManager = ref({
     years_of_experience: '',
     user_id: null,
 });
-
+const errors = ref({});
 const users = ref([]);
 const selectedUser = ref(null);
 
@@ -158,7 +162,12 @@ const submit = async () => {
             toast.show('Project Manager adding error!', 'error');
         }
     } catch (error) {
-        console.log(error);
+        if (error.response && error.response.status === 422) {
+            errors.value = error.response.data.errors || {};
+        } else {
+            console.error(error);
+            toast.show('An unexpected error occurred.', 'error');
+        }
     }
 };
 

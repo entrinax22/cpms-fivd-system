@@ -7,6 +7,7 @@ use App\Models\OtpCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Services\SemaphoreService;
+use Illuminate\Support\Facades\Hash;
 
 class ForgotPasswordController extends Controller
 {
