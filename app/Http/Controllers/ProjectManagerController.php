@@ -29,7 +29,7 @@ class ProjectManagerController extends Controller
                 return [
                     'manager_id' => encrypt($manager->manager_id),
                     'user_id' => encrypt($manager->user_id),
-                    'manager_name' => User::find($manager->user_id)->name,
+                    'manager_name' => User::find($manager->user_id)->name ?? null,
                     'expertise_area' => $manager->expertise_area,
                     'contact_information' => $manager->contact_information,
                     'years_of_experience' => $manager->years_of_experience,
