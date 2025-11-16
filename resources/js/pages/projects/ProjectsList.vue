@@ -110,17 +110,21 @@ const viewProject = (id) => {
 // Progress percentage based on project status
 const getProgress = (status) => {
     switch (status) {
-        case 'Planning':
+        case 'Pre_Construction':
             return 10;
-        case 'In_progress':
-            return 50;
-        case 'On_hold':
-            return 30;
-        case 'Completed':
+        case 'Design_&_Approval':
+            return 25;
+        case 'Procurement_of_Materials':
+            return 40;
+        case 'Site_Preparation':
+            return 55;
+        case 'Construction_Ongoing':
+            return 75;
+        case 'Inspection_&_Quality_Check':
+            return 90;
+        case 'Completed/Turnover':
             return 100;
-        case 'Cancelled':
-            return 0;
-        default:
+        case 'On_Hold':
             return 0;
     }
 };
@@ -128,18 +132,22 @@ const getProgress = (status) => {
 // Color of progress bar based on status
 const progressColor = (status) => {
     switch (status) {
-        case 'Completed':
-            return 'bg-green-500';
-        case 'In_progress':
+        case 'Pre_Construction':
             return 'bg-blue-500';
-        case 'Planning':
+        case 'Design_&_Approval':
+            return 'bg-indigo-500';
+        case 'Procurement_of_Materials':
+            return 'bg-green-500';
+        case 'Site_Preparation':
             return 'bg-yellow-500';
-        case 'On_hold':
-            return 'bg-gray-400';
-        case 'Cancelled':
+        case 'Construction_Ongoing':
             return 'bg-red-500';
-        default:
-            return 'bg-gray-300';
+        case 'Inspection_&_Quality_Check':
+            return 'bg-purple-500';
+        case 'Completed/Turnover':
+            return 'bg-green-600';
+        case 'On_Hold':
+            return 'bg-gray-500';
     }
 };
 </script>

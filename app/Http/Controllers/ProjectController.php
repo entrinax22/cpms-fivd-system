@@ -123,7 +123,7 @@ class ProjectController extends Controller
             'start_date' => 'required|date',
             'estimated_end_date' => 'nullable|date|after_or_equal:start_date',
             'project_description' => 'nullable|string',
-            'status' => 'required|in:planning,in_progress,completed,on_hold,cancelled',
+            'status' => 'required|in:Pre_Construction,Design_&_Approval,Procurement_of_Materials,Site_Preparation,Construction_Ongoing,Inspection_&_Quality_Check,Completed/Turnover,On_Hold',
         ]);
 
         try {
@@ -260,7 +260,7 @@ class ProjectController extends Controller
             'start_date' => 'required|date',
             'estimated_end_date' => 'nullable|date|after_or_equal:start_date',
             'project_description' => 'nullable|string',
-            'status' => 'required|string|max:50',
+            'status' => 'required|in:Pre_Construction,Design_&_Approval,Procurement_of_Materials,Site_Preparation,Construction_Ongoing,Inspection_&_Quality_Check,Completed/Turnover,On_Hold',
         ]);
 
         try {
@@ -393,10 +393,14 @@ class ProjectController extends Controller
                     'start_date' => $project->start_date,
                     'end_date' => $project->estimated_end_date,
                     'color' => match ($project->status) {
-                        'completed' => '#10b981',
-                        'in_progress' => '#3b82f6',
-                        'pending' => '#f59e0b',
-                        'delayed' => '#ef4444',
+                        'Pre_Construction' => '#3b82f6',
+                        'Design_&_Approval' => '#6366f1',
+                        'Procurement_of_Materials' => '#10b981',
+                        'Site_Preparation' => '#f59e0b',
+                        'Construction_Ongoing' => '#ef4444',
+                        'Inspection_&_Quality_Check' => '#8b5cf6',
+                        'Completed/Turnover' => '#22c55e',
+                        'On_Hold' => '#6b7280',
                         default => '#9ca3af',
                     },
                 ];

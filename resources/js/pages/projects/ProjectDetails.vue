@@ -306,35 +306,43 @@ onMounted(fetchProjectProgress);
 // Helpers
 const getProgress = (status) => {
     switch (status) {
-        case 'planning':
+        case 'Pre_Construction':
             return 10;
-        case 'in_progress':
-            return 50;
-        case 'on_hold':
-            return 30;
-        case 'completed':
+        case 'Design_&_Approval':
+            return 25;
+        case 'Procurement_of_Materials':
+            return 40;
+        case 'Site_Preparation':
+            return 55;
+        case 'Construction_Ongoing':
+            return 75;
+        case 'Inspection_&_Quality_Check':
+            return 90;
+        case 'Completed/Turnover':
             return 100;
-        case 'cancelled':
-            return 0;
-        default:
+        case 'On_Hold':
             return 0;
     }
 };
 
 const progressColor = (status) => {
     switch (status) {
-        case 'completed':
-            return 'bg-green-500';
-        case 'in_progress':
+        case 'Pre_Construction':
             return 'bg-blue-500';
-        case 'planning':
+        case 'Design_&_Approval':
+            return 'bg-indigo-500';
+        case 'Procurement_of_Materials':
+            return 'bg-green-500';
+        case 'Site_Preparation':
             return 'bg-yellow-500';
-        case 'on_hold':
-            return 'bg-gray-400';
-        case 'cancelled':
+        case 'Construction_Ongoing':
             return 'bg-red-500';
-        default:
-            return 'bg-gray-300';
+        case 'Inspection_&_Quality_Check':
+            return 'bg-purple-500';
+        case 'Completed/Turnover':
+            return 'bg-green-600';
+        case 'On_Hold':
+            return 'bg-gray-500';
     }
 };
 const formatDate = (d) => (d ? new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A');

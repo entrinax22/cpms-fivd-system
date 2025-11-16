@@ -1,23 +1,53 @@
 <template>
     <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
-        <div class="mb-6 flex items-center justify-between">
-            <button
-                @click="prevMonth"
-                class="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
-            >
-                <span class="material-icons text-base">chevron_left</span>
-                Prev
-            </button>
+        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center justify-between gap-2 sm:justify-start">
+                <button
+                    @click="prevMonth"
+                    class="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+                >
+                    <span class="material-icons text-base">chevron_left</span>
+                    Prev
+                </button>
 
-            <h2 class="text-xl font-bold text-gray-800 sm:text-2xl">{{ monthName }} {{ currentYear }}</h2>
+                <h2 class="text-xl font-bold text-gray-800 sm:text-2xl">{{ monthName }} {{ currentYear }}</h2>
 
-            <button
-                @click="nextMonth"
-                class="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
-            >
-                Next
-                <span class="material-icons text-base">chevron_right</span>
-            </button>
+                <button
+                    @click="nextMonth"
+                    class="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+                >
+                    Next
+                    <span class="material-icons text-base">chevron_right</span>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <label for="month-select" class="text-sm font-medium text-gray-700">Month:</label>
+                    <select
+                        id="month-select"
+                        v-model="currentMonth"
+                        class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                        <option v-for="(month, idx) in monthOptions" :key="idx" :value="idx">
+                            {{ month }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="year-select" class="text-sm font-medium text-gray-700">Year:</label>
+                    <select
+                        id="year-select"
+                        v-model="currentYear"
+                        class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    >
+                        <option v-for="year in yearOptions" :key="year" :value="year">
+                            {{ year }}
+                        </option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="mb-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
@@ -92,6 +122,18 @@ const today = new Date();
 const currentMonth = ref(today.getMonth());
 const currentYear = ref(today.getFullYear());
 const projects = ref([]);
+
+const monthOptions = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+// Generate year options (5 years before and after current year)
+const yearOptions = computed(() => {
+    const currentYearValue = today.getFullYear();
+    const years = [];
+    for (let i = currentYearValue - 5; i <= currentYearValue + 5; i++) {
+        years.push(i);
+    }
+    return years;
+});
 
 const monthName = computed(() =>
     new Date(currentYear.value, currentMonth.value).toLocaleString('default', {
@@ -180,10 +222,14 @@ function getBarStyle(project, index) {
 // --- Your Existing Functions (Unchanged) ---
 
 const statusLegend = [
-    { label: 'Completed', color: '#10b981' },
-    { label: 'In_progress', color: '#3b82f6' },
-    { label: 'Planning', color: '#f59e0b' },
-    { label: 'On_hold / Cancelled', color: '#9ca3af' },
+    { label: 'Pre-Construction', color: '#3b82f6' },
+    { label: 'Design & Approval', color: '#6366f1' },
+    { label: 'Procurement of Materials', color: '#10b981' },
+    { label: 'Site Preparation', color: '#f59e0b' },
+    { label: 'Construction Ongoing', color: '#ef4444' },
+    { label: 'Inspection & Quality Check', color: '#8b5cf6' },
+    { label: 'Completed/Turnover', color: '#22c55e' },
+    { label: 'On Hold', color: '#6b7280' },
 ];
 
 async function fetchProjects() {

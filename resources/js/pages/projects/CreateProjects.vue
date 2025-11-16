@@ -111,11 +111,14 @@
                                 required
                             >
                                 <option disabled value="">Select Status</option>
-                                <option value="planning">Planning</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                                <option value="on_hold">On Hold</option>
-                                <option value="cancelled">Cancelled</option>
+                                <option value="Pre_Construction">Pre Construction</option>
+                                <option value="Design_&_Approval">Design & Approval</option>
+                                <option value="Procurement_of_Materials">Procurement of Materials</option>
+                                <option value="Site_Preparation">Site Preparation</option>
+                                <option value="Construction_Ongoing">Construction Ongoing</option>
+                                <option value="Inspection_&_Quality_Check">Inspection & Quality Check</option>
+                                <option value="Completed/Turnover">Completed/Turnover</option>
+                                <option value="On_Hold">On Hold</option>
                             </select>
                             <p v-if="errors.status" class="mt-1 text-sm text-red-600">{{ errors.status[0] }}</p>
                         </div>

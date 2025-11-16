@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('estimated_end_date')->nullable();
             $table->string('project_description')->nullable();
-            $table->enum('status', ['planning', 'in_progress', 'completed', 'on_hold', 'cancelled'])->default('planning');
+            $table->enum('status', ['Pre_Construction', 'Design_&_Approval', 'Procurement_of_Materials', 'Site_Preparation', 'Construction_Ongoing', 'Inspection_&_Quality_Check', 'Completed/Turnover', 'On_Hold'])->default('Pre_Construction');
             $table->timestamps();
 
             $table->foreign('client_id')
